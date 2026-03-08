@@ -1,158 +1,82 @@
-# Changelog
+# 變更日誌
 
 <!-- markdownlint-disable MD024 -->
 
-Recent changes to the Specify CLI and templates are documented here.
+此處記錄了最近對 Specify CLI 和範本的變更。
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [0.1.13] - 2026-03-03
-
-### Changed
-
-- feat: add kiro-cli and AGENT_CONFIG consistency coverage (#1690)
-- feat: add verify extension to community catalog (#1726)
-- Add Retrospective Extension to community catalog README table (#1741)
-- fix(scripts): add empty description validation and branch checkout error handling (#1559)
-- fix: correct Copilot extension command registration (#1724)
-- fix(implement): remove Makefile from C ignore patterns (#1558)
-- Add sync extension to community catalog (#1728)
-- fix(checklist): clarify file handling behavior for append vs create (#1556)
-- fix(clarify): correct conflicting question limit from 10 to 5 (#1557)
-- chore: bump version to 0.1.12 (#1737)
-- fix: use RELEASE_PAT so tag push triggers release workflow (#1736)
-- fix: release-trigger uses release branch + PR instead of direct push to main (#1733)
-- fix: Split release process to sync pyproject.toml version with git tags (#1732)
-
-
-## [0.1.13] - 2026-03-03
-
-### Fixed
-
-- **Copilot Extension Commands Not Visible**: Fixed extension commands not appearing in GitHub Copilot when installed via `specify extension add --dev`
-  - Changed Copilot file extension from `.md` to `.agent.md` in `CommandRegistrar.AGENT_CONFIGS` so Copilot recognizes agent files
-  - Added generation of companion `.prompt.md` files in `.github/prompts/` during extension command registration, matching the release packaging behavior
-  - Added cleanup of `.prompt.md` companion files when removing extensions via `specify extension remove`
-- Fixed a syntax regression in `src/specify_cli/__init__.py` in `_build_ai_assistant_help()` that broke `ruff` and `pytest` collection in CI.
-## [0.1.12] - 2026-03-02
-
-### Changed
-
-- fix: use RELEASE_PAT so tag push triggers release workflow (#1736)
-- fix: release-trigger uses release branch + PR instead of direct push to main (#1733)
-- fix: Split release process to sync pyproject.toml version with git tags (#1732)
-
-
-## [0.1.10] - 2026-03-02
-
-### Fixed
-
-- **Version Sync Issue (#1721)**: Fixed version mismatch between `pyproject.toml` and git release tags
-  - Split release process into two workflows: `release-trigger.yml` for version management and `release.yml` for artifact building
-  - Version bump now happens BEFORE tag creation, ensuring tags point to commits with correct version
-  - Supports both manual version specification and auto-increment (patch version)
-  - Git tags now accurately reflect the version in `pyproject.toml` at that commit
-  - Prevents confusion when installing from source
-
-## [0.1.9] - 2026-02-28
-
-### Changed
-
-- Updated dependency: bumped astral-sh/setup-uv from 6 to 7
-
-## [0.1.8] - 2026-02-28
-
-### Changed
-
-- Updated dependency: bumped actions/setup-python from 5 to 6
-
-## [0.1.7] - 2026-02-27
-
-### Changed
-
-- Updated outdated GitHub Actions versions
-- Documented dual-catalog system for extensions
-
-### Fixed
-
-- Fixed version command in documentation
-
-### Added
-
-- Added Cleanup Extension to README
-- Added retrospective extension to community catalog
+格式基於 [保留變更日誌](https://keepachangelog.com/en/1.0.0/)，
+且該專案遵循 [語意版本控制](https://semver.org/spec/v2.0.0.html)。
 
 ## [0.1.6] - 2026-02-23
 
-### Fixed
+### 固定的
 
-- **Parameter Ordering Issues (#1641)**: Fixed CLI parameter parsing issue where option flags were incorrectly consumed as values for preceding options
-  - Added validation to detect when `--ai` or `--ai-commands-dir` incorrectly consume following flags like `--here` or `--ai-skills`
-  - Now provides clear error messages: "Invalid value for --ai: '--here'"
-  - Includes helpful hints suggesting proper usage and listing available agents
-  - Commands like `specify init --ai-skills --ai --here` now fail with actionable feedback instead of confusing "Must specify project name" errors
-  - Added comprehensive test suite (5 new tests) to prevent regressions
+- **參數排序問題 (#1641)**：修正了 CLI 參數解析問題，其中選項標誌被錯誤地用作前面選項的值
+  - 新增了驗證以偵測 `--ai` 或 `--ai-commands-dir` 何時錯誤地消耗以下標誌，例如 `--here` 或 `--ai-skills`
+  - 現在提供清晰的錯誤訊息：“--ai 的值無效：'--here'”
+  - 包括建議正確使用和列出可用代理的有用提示
+  - 像 `specify init --ai-skills --ai --here` 這樣的命令現在會失敗並提供可操作的回饋，而不是令人困惑的「必須指定專案名稱」錯誤
+  - 添加了全面的測試套件（5 個新測試）以防止回歸
 
 ## [0.1.5] - 2026-02-21
 
-### Fixed
+### 固定的
 
-- **AI Skills Installation Bug (#1658)**: Fixed `--ai-skills` flag not generating skill files for GitHub Copilot and other agents with non-standard command directory structures
-  - Added `commands_subdir` field to `AGENT_CONFIG` to explicitly specify the subdirectory name for each agent
-  - Affected agents now work correctly: copilot (`.github/agents/`), opencode (`.opencode/command/`), windsurf (`.windsurf/workflows/`), codex (`.codex/prompts/`), kilocode (`.kilocode/workflows/`), q (`.amazonq/prompts/`), and agy (`.agent/workflows/`)
-  - The `install_ai_skills()` function now uses the correct path for all agents instead of assuming `commands/` for everyone
+- **AI 技能安裝錯誤 (#1658)**：修正了 `--ai-skills` 標誌不為 GitHub Copilot 和其他具有非標準命令目錄結構的代理生成技能文件
+  - 將 `commands_subdir` 欄位新增至 `AGENT_CONFIG` 以明確指定每個代理程式的子目錄名稱
+  - 受影響的代理現在可以正常工作：副駕駛 (`.github/agents/`)、opencode (`.opencode/command/`)、windsurf (`.windsurf/workflows/`)、codex (`.codex/prompts/`)、kilocode (`.kilocode/workflows/`)、q (`.amazonq/prompts/`) 和 agy (`.agent/workflows/`)
+  - `install_ai_skills()` 函數現在為所有代理人使用正確的路徑，而不是為每個人假設 `commands/`
 
 ## [0.1.4] - 2026-02-20
 
-### Fixed
+### 固定的
 
-- **Qoder CLI detection**: Renamed `AGENT_CONFIG` key from `"qoder"` to `"qodercli"` to match the actual executable name, fixing `specify check` and `specify init --ai` detection failures
+- **Qoder CLI 偵測**：將 `AGENT_CONFIG` 鍵從 `"qoder"` 重新命名為 `"qodercli"` 以符合實際的可執行檔名稱，修正 `specify check` 和 `specify init --ai` 偵測失敗
 
 ## [0.1.3] - 2026-02-20
 
-### Added
+### 額外
 
-- **Generic Agent Support**: Added `--ai generic` option for unsupported AI agents ("bring your own agent")
-  - Requires `--ai-commands-dir <path>` to specify where the agent reads commands from
-  - Generates Markdown commands with `$ARGUMENTS` format (compatible with most agents)
-  - Example: `specify init my-project --ai generic --ai-commands-dir .myagent/commands/`
-  - Enables users to start with Spec Kit immediately while their agent awaits formal support
+- **通用代理支援**：為不支援的 AI 代理程式新增了 `--ai generic` 選項（「自帶代理」）
+  - 需要`--ai-commands-dir <path>` 指定代理程式從何處讀取命令
+  - 產生 Markdown 格式為 `$ARGUMENTS` 的指令（與大多數代理程式相容）
+  - 例：`specify init my-project --ai generic --ai-commands-dir .myagent/commands/`
+  - 使用戶能夠在代理等待正式支援時立即開始使用 Spec Kit
 
 ## [0.0.102] - 2026-02-20
 
-- fix: include 'src/**' path in release workflow triggers (#1646)
+- 修正：在發布工作流程觸發器中包含 'src/**' 路徑 (#1646)
 
 ## [0.0.101] - 2026-02-19
 
-- chore(deps): bump github/codeql-action from 3 to 4 (#1635)
+- 雜務(deps)：將 github/codeql-action 從 3 提升到 4 (#1635)
 
 ## [0.0.100] - 2026-02-19
 
-- Add pytest and Python linting (ruff) to CI (#1637)
-- feat: add pull request template for better contribution guidelines (#1634)
+- 將 pytest 和 Python linting (ruff) 加入 CI (#1637)
+- 壯舉：新增拉取請求範本以獲得更好的貢獻指南（#1634）
 
 ## [0.0.99] - 2026-02-19
 
-- Feat/ai skills (#1632)
+- 壯舉/ai 技能 (#1632)
 
 ## [0.0.98] - 2026-02-19
 
-- chore(deps): bump actions/stale from 9 to 10 (#1623)
-- feat: add dependabot configuration for pip and GitHub Actions updates (#1622)
+- 雜務（deps）：將動作/stale從9增加到10（#1623）
+- feat：為 pip 和 GitHub Actions 更新新增 dependentabot 設定 (#1622)
 
 ## [0.0.97] - 2026-02-18
 
-- Remove Maintainers section from README.md (#1618)
+- 從 README.md 中刪除維護者部分 (#1618)
 
 ## [0.0.96] - 2026-02-17
 
-- fix: typo in plan-template.md (#1446)
+- 修復：plan-template.md 中的拼字錯誤 (#1446)
 
 ## [0.0.95] - 2026-02-12
 
-- Feat: add a new agent: Google Anti Gravity (#1220)
+- 壯舉：新增代理：Google Anti Gravity (#1220)
 
 ## [0.0.94] - 2026-02-11
 
-- Add stale workflow for 180-day inactive issues and PRs (#1594)
+- 為 180 天不活動的問題和 PR 添加過時的工作流程 (#1594)

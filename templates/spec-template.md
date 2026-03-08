@@ -1,115 +1,115 @@
-# Feature Specification: [FEATURE NAME]
+# 功能規格：[功能名稱]
 
-**Feature Branch**: `[###-feature-name]`  
-**Created**: [DATE]  
-**Status**: Draft  
-**Input**: User description: "$ARGUMENTS"
+**官能分支**：`[###-feature-name]`  
+**建立**：[日期]  
+**狀態**：草案  
+**輸入**：使用者描述：“$ARGUMENTS”
 
-## User Scenarios & Testing *(mandatory)*
+## 使用者場景和測試*（必填）*
 
 <!--
-  IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
-  Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
-  you should still have a viable MVP (Minimum Viable Product) that delivers value.
+  重要提示：使用者故事應優先考慮，因為使用者旅程按重要性排序。
+  每個使用者故事/journey 必須是獨立可測試的 - 這意味著如果您只實作其中一個，
+  您仍然應該擁有一個能夠提供價值的可行 MVP（最小可行產品）。
   
-  Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
-  Think of each story as a standalone slice of functionality that can be:
-  - Developed independently
-  - Tested independently
-  - Deployed independently
-  - Demonstrated to users independently
+  為每個故事分配優先順序（P1、P2、P3 等），其中 P1 最為關鍵。
+  將每個故事視為一個獨立的功能部分，可以是：
+  - 自主開發
+  - 獨立測試
+  - 獨立部署
+  - 獨立向用戶展示
 -->
 
-### User Story 1 - [Brief Title] (Priority: P1)
+### 使用者故事 1 - [簡短標題]（優先順序：P1）
 
-[Describe this user journey in plain language]
+[用簡單易懂的語言描述這個使用者旅程]
 
-**Why this priority**: [Explain the value and why it has this priority level]
+**為什麼這個優先權**：[解釋該值以及為什麼它有這個優先權]
 
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+**獨立測試**：[描述如何獨立測試 - 例如，「可以透過[特定操作]進行全面測試並提供[特定值]」]
 
-**Acceptance Scenarios**:
+**驗收場景**：
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-2. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. **給定** [初始狀態]，**何時** [行動]，**則** [預期結果]
+2. **給定** [初始狀態]，**何時** [行動]，**則** [預期結果]
 
 ---
 
-### User Story 2 - [Brief Title] (Priority: P2)
+### 使用者故事 2 - [簡短標題]（優先順序：P2）
 
-[Describe this user journey in plain language]
+[用簡單易懂的語言描述這個使用者旅程]
 
-**Why this priority**: [Explain the value and why it has this priority level]
+**為什麼這個優先權**：[解釋該值以及為什麼它有這個優先權]
 
-**Independent Test**: [Describe how this can be tested independently]
+**獨立測試**：[描述如何獨立測試]
 
-**Acceptance Scenarios**:
+**驗收場景**：
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-
----
-
-### User Story 3 - [Brief Title] (Priority: P3)
-
-[Describe this user journey in plain language]
-
-**Why this priority**: [Explain the value and why it has this priority level]
-
-**Independent Test**: [Describe how this can be tested independently]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. **給定** [初始狀態]，**何時** [行動]，**則** [預期結果]
 
 ---
 
-[Add more user stories as needed, each with an assigned priority]
+### 使用者故事 3 - [簡短標題]（優先順序：P3）
 
-### Edge Cases
+[用簡單易懂的語言描述這個使用者旅程]
 
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right edge cases.
--->
+**為什麼這個優先權**：[解釋該值以及為什麼它有這個優先權]
 
-- What happens when [boundary condition]?
-- How does system handle [error scenario]?
+**獨立測試**：[描述如何獨立測試]
 
-## Requirements *(mandatory)*
+**驗收場景**：
 
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right functional requirements.
--->
+1. **給定** [初始狀態]，**何時** [行動]，**則** [預期結果]
 
-### Functional Requirements
+---
 
-- **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
-- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]  
-- **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
-- **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
-- **FR-005**: System MUST [behavior, e.g., "log all security events"]
+[根據需要增加更多使用者故事，每個故事都有分配的優先順序]
 
-*Example of marking unclear requirements:*
-
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
-
-### Key Entities *(include if feature involves data)*
-
-- **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [What it represents, relationships to other entities]
-
-## Success Criteria *(mandatory)*
+### 邊緣情況
 
 <!--
-  ACTION REQUIRED: Define measurable success criteria.
-  These must be technology-agnostic and measurable.
+  所需操作：本節的內容代表佔位符。
+  用正確的邊緣情況填滿它們。
 -->
 
-### Measurable Outcomes
+- 當[邊界條件]時會發生什麼？
+- 系統如何處理[錯誤場景]？
 
-- **SC-001**: [Measurable metric, e.g., "Users can complete account creation in under 2 minutes"]
-- **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+## 要求*（強制）*
+
+<!--
+  所需操作：本節的內容代表佔位符。
+  填寫正確的功能要求。
+-->
+
+### 功能要求
+
+- **FR-001**：系統必須[特定功能，例如「允許使用者建立帳戶」]
+- **FR-002**：系統必須[特定功能，例如「驗證電子郵件地址」]  
+- **FR-003**：使用者必須能夠[關鍵交互，例如「重設密碼」]
+- **FR-004**：系統必須[資料需求，例如「保留使用者首選項」]
+- **FR-005**：系統必須[行為，例如“記錄所有安全事件”]
+
+*標記不明確要求的範例：*
+
+- **FR-006**：系統必須通過 [需要澄清：未指定身份驗證方法 - email/password、SSO、OAuth？ ]
+- **FR-007**：系統必須保留使用者資料[需要澄清：未指定保留期限]
+
+### 關鍵實體*（如果功能涉及數據，則包括）*
+
+- **[實體1]**：[它代表什麼，沒有實現的關鍵屬性]
+- **[實體 2]**：[它代表什麼，與其他實體的關係]
+
+## 成功標準*（必填）*
+
+<!--
+  所需行動：定義可衡量的成功標準。
+  這些必須與技術無關且可衡量。
+-->
+
+### 可衡量的成果
+
+- **SC-001**：[可衡量的指標，例如「使用者可以在 2 分鐘內完成帳戶建立」]
+- **SC-002**：[可衡量的指標，例如「系統處理 1000 個並髮使用者而沒有降級」]
+- **SC-003**：[使用者滿意度指標，例如「90% 的使用者在第一次嘗試時成功完成主要任務」]
+- **SC-004**：[業務指標，例如「將與 [X] 相關的支援票減少 50%」]

@@ -1,28 +1,28 @@
-# [PROJECT NAME] Development Guidelines
+# [專案名稱] 開髮指南
 
-Auto-generated from all feature plans. Last updated: [DATE]
+從所有功能計劃自動產生。最後更新時間：[日期]
 
-## Active Technologies
+## 主動技術
 
-[EXTRACTED FROM ALL PLAN.MD FILES]
+[從所有 PLAN.MD 檔案中提取]
 
-## Project Structure
+## 專案結構
 
 ```text
 [ACTUAL STRUCTURE FROM PLANS]
 ```
 
-## Commands
+## 命令
 
-[ONLY COMMANDS FOR ACTIVE TECHNOLOGIES]
+[僅適用於主動技術的命令]
 
-## Code Style
+## 程式碼風格
 
-[LANGUAGE-SPECIFIC, ONLY FOR LANGUAGES IN USE]
+[特定於語言，僅適用於正在使用的語言]
 
-## Recent Changes
+## 最近的變化
 
-[LAST 3 FEATURES AND WHAT THEY ADDED]
+[最後 3 個功能及其添加內容]
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

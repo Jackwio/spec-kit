@@ -3,11 +3,11 @@
   href: index.md
 
 # Getting started section
-- name: Getting Started
+- name: 入門
   items:
     - name: Installation
       href: installation.md
-    - name: Quick Start
+    - name: 快速入門
       href: quickstart.md
     - name: Upgrade
       href: upgrade.md
@@ -15,5 +15,5 @@
 # Development workflows
 - name: Development
   items:
-    - name: Local Development
+    - name: 本地發展
       href: local-development.md

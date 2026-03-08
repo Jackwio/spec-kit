@@ -1,75 +1,75 @@
-# Extension Configuration Template
-# Copy this to my-extension-config.yml and customize for your project
+# 擴充功能設定範本
+# 請複製為 my-extension-config.yml，並依專案需求自訂
 
-# CUSTOMIZE: Add your configuration sections below
+# 自訂：在下方新增您的設定區段
 
-# Example: Connection settings
+# 範例：連線設定
 connection:
-  # URL to external service
-  url: ""  # REQUIRED: e.g., "https://api.example.com"
+  # 外部服務 URL
+  url: ""  # 必填：例如 "https://api.example.com"
 
-  # API key or token
-  api_key: ""  # REQUIRED: Your API key
+  # API 金鑰或權杖
+  api_key: ""  # 必填：您的 API 金鑰
 
-# Example: Project settings
+# 範例：專案設定
 project:
-  # Project identifier
-  id: ""  # REQUIRED: e.g., "my-project"
+  # 專案識別碼
+  id: ""  # 必填：例如 "my-project"
 
-  # Workspace or organization
-  workspace: ""  # OPTIONAL: e.g., "my-org"
+  # 工作區或組織
+  workspace: ""  # 選填：例如 "my-org"
 
-# Example: Feature flags
+# 範例：功能旗標
 features:
-  # Enable/disable main functionality
+  # 啟用/停用主要功能
   enabled: true
 
-  # Automatic synchronization
+  # 自動同步
   auto_sync: false
 
-  # Verbose logging
+  # 詳細記錄
   verbose: false
 
-# Example: Default values
+# 範例：預設值
 defaults:
-  # Labels to apply
-  labels: []  # e.g., ["automated", "spec-kit"]
+  # 要套用的標籤
+  labels: []  # 例如 ["automated", "spec-kit"]
 
-  # Priority level
-  priority: "medium"  # Options: "low", "medium", "high"
+  # 優先等級
+  priority: "medium"  # 可選值："low"、"medium"、"high"
 
-  # Assignee
-  assignee: ""  # OPTIONAL: Default assignee
+  # 指派人
+  assignee: ""  # 選填：預設指派人
 
-# Example: Field mappings
-# Map internal names to external field IDs
+# 範例：欄位對應
+# 將內部名稱對應到外部欄位 ID
 field_mappings:
-  # Example mappings
+  # 對應範例
   # internal_field: "external_field_id"
   # status: "customfield_10001"
 
-# Example: Advanced settings
+# 範例：進階設定
 advanced:
-  # Timeout in seconds
+  # 逾時秒數
   timeout: 30
 
-  # Retry attempts
+  # 重試次數
   retry_count: 3
 
-  # Cache duration in seconds
+  # 快取保存秒數
   cache_duration: 3600
 
-# Environment Variable Overrides:
-# You can override any setting with environment variables  using this pattern:
+# 環境變數覆寫：
+# 您可以使用以下格式透過環境變數覆寫任何設定：
 # SPECKIT_MY_EXTENSION_{SECTION}_{KEY}
 #
-# Examples:
-# - SPECKIT_MY_EXTENSION_CONNECTION_API_KEY: Override connection.api_key
-# - SPECKIT_MY_EXTENSION_PROJECT_ID: Override project.id
-# - SPECKIT_MY_EXTENSION_FEATURES_ENABLED: Override features.enabled
+# 範例：
+# - SPECKIT_MY_EXTENSION_CONNECTION_API_KEY：覆寫 connection.api_key
+# - SPECKIT_MY_EXTENSION_PROJECT_ID：覆寫 project.id
+# - SPECKIT_MY_EXTENSION_FEATURES_ENABLED：覆寫 features.enabled
 #
-# Note: Use uppercase and replace dots with underscores
+# 注意：請使用大寫，並將句點替換為底線
 
-# Local Overrides:
-# For local development, create my-extension-config.local.yml (gitignored)
-# to override settings without affecting the team configuration
+# 本機覆寫：
+# 本機開發時可建立 my-extension-config.local.yml（gitignore）
+# 以覆寫設定而不影響團隊共用設定

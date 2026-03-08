@@ -1,108 +1,108 @@
-# RFC: Spec Kit Extension System
+# RFC：Spec Kit 擴充系統
 
-**Status**: Draft
-**Author**: Stats Perform Engineering
-**Created**: 2026-01-28
-**Updated**: 2026-01-28
-
----
-
-## Table of Contents
-
-1. [Summary](#summary)
-2. [Motivation](#motivation)
-3. [Design Principles](#design-principles)
-4. [Architecture Overview](#architecture-overview)
-5. [Extension Manifest Specification](#extension-manifest-specification)
-6. [Extension Lifecycle](#extension-lifecycle)
-7. [Command Registration](#command-registration)
-8. [Configuration Management](#configuration-management)
-9. [Hook System](#hook-system)
-10. [Extension Discovery & Catalog](#extension-discovery--catalog)
-11. [CLI Commands](#cli-commands)
-12. [Compatibility & Versioning](#compatibility--versioning)
-13. [Security Considerations](#security-considerations)
-14. [Migration Strategy](#migration-strategy)
-15. [Implementation Phases](#implementation-phases)
-16. [Open Questions](#open-questions)
-17. [Appendices](#appendices)
+**狀態**：草案
+**作者**：Stats Perform Engineering
+**建立**：2026-01-28
+**更新**：2026-01-28
 
 ---
 
-## Summary
+## 目錄
 
-Introduce an extension system to Spec Kit that allows modular integration with external tools (Jira, Linear, Azure DevOps, etc.) without bloating the core framework. Extensions are self-contained packages installed into `.specify/extensions/` with declarative manifests, versioned independently, and discoverable through a central catalog.
-
----
-
-## Motivation
-
-### Current Problems
-
-1. **Monolithic Growth**: Adding Jira integration to core spec-kit creates:
-   - Large configuration files affecting all users
-   - Dependencies on Jira MCP server for everyone
-   - Merge conflicts as features accumulate
-
-2. **Limited Flexibility**: Different organizations use different tools:
-   - GitHub Issues vs Jira vs Linear vs Azure DevOps
-   - Custom internal tools
-   - No way to support all without bloat
-
-3. **Maintenance Burden**: Every integration adds:
-   - Documentation complexity
-   - Testing matrix expansion
-   - Breaking change surface area
-
-4. **Community Friction**: External contributors can't easily add integrations without core repo PR approval and release cycles.
-
-### Goals
-
-1. **Modularity**: Core spec-kit remains lean, extensions are opt-in
-2. **Extensibility**: Clear API for building new integrations
-3. **Independence**: Extensions version/release separately from core
-4. **Discoverability**: Central catalog for finding extensions
-5. **Safety**: Validation, compatibility checks, sandboxing
+1. [概括](#概括)
+2. [動機](#動機)
+3. [設計原則](#設計原則)
+4. [架構概述](#架構概述)
+5. [擴充清單規範](#擴充清單規範)
+6. [延長生命週期](#延長生命週期)
+7. [命令註冊](#命令註冊)
+8. [設定管理](#設定管理)
+9. [掛鉤系統](#掛鉤系統)
+10. [擴展發現和目錄](#擴展發現和目錄)
+11. [CLI 指令](#cli-指令)
+12. [相容性和版本控制](#相容性和版本控制)
+13. [安全考慮](#安全考慮)
+14. [遷移策略](#遷移策略)
+15. [實施階段](#實施階段)
+16. [開放式問題](#開放式問題)
+17. [附錄](#附錄)
 
 ---
 
-## Design Principles
+## 概括
 
-### 1. Convention Over Configuration
-
-- Standard directory structure (`.specify/extensions/{name}/`)
-- Declarative manifest (`extension.yml`)
-- Predictable command naming (`speckit.{extension}.{command}`)
-
-### 2. Fail-Safe Defaults
-
-- Missing extensions gracefully degrade (skip hooks)
-- Invalid extensions warn but don't break core functionality
-- Extension failures isolated from core operations
-
-### 3. Backward Compatibility
-
-- Core commands remain unchanged
-- Extensions additive only (no core modifications)
-- Old projects work without extensions
-
-### 4. Developer Experience
-
-- Simple installation: `specify extension add jira`
-- Clear error messages for compatibility issues
-- Local development mode for testing extensions
-
-### 5. Security First
-
-- Extensions run in same context as AI agent (trust boundary)
-- Manifest validation prevents malicious code
-- Verify signatures for official extensions (future)
+向 Spec Kit 引入擴展系統，允許與外部工具（Jira、Linear、Azure DevOps 等）進行模組化集成，而不會導致核心框架膨脹。擴充功能是安裝到 `.specify/extensions/` 的獨立包，具有聲明性清單，獨立版本控制，並且可以透過中央目錄發現。
 
 ---
 
-## Architecture Overview
+## 動機
 
-### Directory Structure
+### 目前的問題
+
+1. **整體成長**：將 Jira 整合加入核心規格套件會建立：
+   - 影響所有用戶的大型設定文件
+   - 每個人都依賴 Jira MCP 伺服器
+   - 隨著功能的累積合併衝突
+
+2. **靈活性有限**：不同的組織使用不同的工具：
+   - GitHub 問題 vs Jira vs Linear vs Azure DevOps
+   - 自訂內部工具
+   - 沒有辦法在不臃腫的情況下支持所有內容
+
+3. **維護負擔**：每次整合都會增加：
+   - 文件複雜性
+   - 測試矩陣擴展
+   - 表面積發生重大變化
+
+4. **社群摩擦**：如果沒有核心儲存庫 PR 批准和發布週期，外部貢獻者無法輕鬆新增整合。
+
+### 目標
+
+1. **模組化**：核心規格套件保持精簡，擴充可供選擇
+2. **可擴展性**：清除 API 以建立新的集成
+3. **獨立**：擴充版本/release 與核心分開
+4. **可發現性**：用於尋找擴充功能的中央目錄
+5. **安全性**：驗證、相容性檢查、沙箱
+
+---
+
+## 設計原則
+
+### 1.約定優於設定
+
+- 標準目錄結構 (`.specify/extensions/{name}/`)
+- 聲明性清單 (`extension.yml`)
+- 可預測的指令命名 (`speckit.{extension}.{command}`)
+
+### 2. 故障安全預設設定
+
+- 丟失的擴展會優雅地降級（跳過鉤子）
+- 無效擴充會發出警告，但不會破壞核心功能
+- 與核心操作隔離的擴充故障
+
+### 3. 向後相容性
+
+- 核心命令保持不變
+- 僅附加擴充（無核心修改）
+- 舊專案無需擴展即可執行
+
+### 4. 開發者經驗
+
+- 安裝簡單：`specify extension add jira`
+- 清除相容性問題的錯誤訊息
+- 用於測試擴充功能的本機開發模式
+
+### 5. 安全第一
+
+- 擴展在與 AI 代理相同的上下文中執行（信任邊界）
+- 清單驗證可防止惡意程式碼
+- 驗證官方擴充的簽名（未來）
+
+---
+
+## 架構概述
+
+### 目錄結構
 
 ```text
 project/
@@ -123,7 +123,7 @@ project/
 └── .gitignore                   # Ignore local extension configs
 ```
 
-### Component Diagram
+### 元件圖
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
@@ -171,9 +171,9 @@ project/
 
 ---
 
-## Extension Manifest Specification
+## 擴充清單規範
 
-### Schema: `extension.yml`
+### 架構：`extension.yml`
 
 ```yaml
 # Extension Manifest Schema v1.0
@@ -303,51 +303,51 @@ support:
   email: "support@statsperform.com"
 ```
 
-### Validation Rules
+### 驗證規則
 
-1. **MUST have** `schema_version`, `extension`, `requires`, `provides`
-2. **MUST follow** semantic versioning for `version`
-3. **MUST have** unique `id` (no conflicts with other extensions)
-4. **MUST declare** all external tool dependencies
-5. **SHOULD include** `config_schema` if extension uses config
-6. **SHOULD include** `support` information
-7. Command `file` paths **MUST be** relative to extension root
-8. Hook `command` names **MUST match** a command in `provides.commands`
+1. **必有** `schema_version`、`extension`、`requires`、`provides`
+2. **必須遵循** `version` 的語意版本控制
+3. **必須有**唯一的 `id` （不與其他副檔名衝突）
+4. **必須聲明**所有外部工具依賴項
+5. **如果擴充使用設定，則應包含** `config_schema`
+6. **應包括** `support` 訊息
+7. 指令 `file` 路徑 **必須** 相對於擴充根目錄
+8. 掛鉤 `command` 名稱 **必須符合** `provides.commands` 中的指令
 
 ---
 
-## Extension Lifecycle
+## 延長生命週期
 
-### 1. Discovery
+### 1. 發現
 
 ```bash
 specify extension search jira
 # Searches catalog for extensions matching "jira"
 ```
 
-**Process:**
+**過程：**
 
-1. Fetch extension catalog from GitHub
-2. Filter by search term (name, tags, description)
-3. Display results with metadata
+1. 從 GitHub 取得擴充目錄
+2. 依搜尋字詞過濾（名稱、標籤、描述）
+3. 顯示帶有元資料的結果
 
-### 2. Installation
+### 2. 安裝
 
 ```bash
 specify extension add jira
 ```
 
-**Process:**
+**過程：**
 
-1. **Resolve**: Look up extension in catalog
-2. **Download**: Fetch extension package (ZIP from GitHub release)
-3. **Validate**: Check manifest schema, compatibility
-4. **Extract**: Unpack to `.specify/extensions/jira/`
-5. **Configure**: Copy config templates
-6. **Register**: Add commands to AI agent config
-7. **Record**: Update `.specify/extensions/.registry`
+1. **解決**：在目錄中尋找擴展名
+2. **下載**：取得擴充包（來自 GitHub 版本的 ZIP）
+3. **驗證**：檢查清單架構、相容性
+4. **提取**：解壓縮到 `.specify/extensions/jira/`
+5. **設定**：複製設定模板
+6. **註冊**：將指令新增至 AI 代理程式設定
+7. **記錄**：更新 `.specify/extensions/.registry`
 
-**Registry Format** (`.specify/extensions/.registry`):
+**註冊表格式** (`.specify/extensions/.registry`)：
 
 ```json
 {
@@ -364,74 +364,74 @@ specify extension add jira
 }
 ```
 
-### 3. Configuration
+### 3. 設定
 
 ```bash
 # User edits extension config
 vim .specify/extensions/jira/jira-config.yml
 ```
 
-**Config discovery order:**
+**設定發現順序：**
 
-1. Extension defaults (`extension.yml` → `defaults`)
-2. Project config (`jira-config.yml`)
-3. Local overrides (`jira-config.local.yml` - gitignored)
-4. Environment variables (`SPECKIT_JIRA_*`)
+1. 擴充預設值 (`extension.yml` → `defaults`)
+2. 專案設定 (`jira-config.yml`)
+3. 本地覆蓋（`jira-config.local.yml` - gitignored）
+4. 環境變數 (`SPECKIT_JIRA_*`)
 
-### 4. Usage
+### 4. 使用方法
 
 ```bash
 claude
 > /speckit.jira.specstoissues
 ```
 
-**Command resolution:**
+**命令解析度：**
 
-1. AI agent finds command in `.claude/commands/speckit.jira.specstoissues.md`
-2. Command file references extension scripts/config
-3. Extension executes with full context
+1. AI 代理在 `.claude/commands/speckit.jira.specstoissues.md` 找到指令
+2. 指令檔引用擴充腳本/config
+3. 擴充在完整上下文中執行
 
-### 5. Update
+### 5. 更新
 
 ```bash
 specify extension update jira
 ```
 
-**Process:**
+**過程：**
 
-1. Check catalog for newer version
-2. Download new version
-3. Validate compatibility
-4. Back up current config
-5. Extract new version (preserve config)
-6. Re-register commands
-7. Update registry
+1. 檢查目錄以取得新版本
+2. 下載新版本
+3. 驗證相容性
+4. 備份當前設定
+5. 提取新版本（保留設定）
+6. 重新註冊命令
+7. 更新註冊表
 
-### 6. Removal
+### 6. 拆除
 
 ```bash
 specify extension remove jira
 ```
 
-**Process:**
+**過程：**
 
-1. Confirm with user (show what will be removed)
-2. Unregister commands from AI agent
-3. Remove from `.specify/extensions/jira/`
-4. Update registry
-5. Optionally preserve config for reinstall
+1. 與用戶確認（顯示將刪除的內容）
+2. 從 AI 代理取消註冊命令
+3. 從 `.specify/extensions/jira/` 刪除
+4. 更新註冊表
+5. 可以選擇保留設定以便重新安裝
 
 ---
 
-## Command Registration
+## 命令註冊
 
-### Per-Agent Registration
+### 每個代理註冊
 
-Extensions provide **universal command format** (Markdown-based), and CLI converts to agent-specific format during registration.
+擴充功能提供**通用命令格式**（基於 Markdown），並且 CLI 在註冊期間轉換為特定於代理的格式。
 
-#### Universal Command Format
+#### 通用命令格式
 
-**Location**: Extension's `commands/specstoissues.md`
+**位置**：分機號碼 `commands/specstoissues.md`
 
 ```markdown
 ---
@@ -455,9 +455,9 @@ $ARGUMENTS
 3. Create Jira items
 ```
 
-#### Claude Code Registration
+#### Claude Code 註冊
 
-**Output**: `.claude/commands/speckit.jira.specstoissues.md`
+**輸出**：`.claude/commands/speckit.jira.specstoissues.md`
 
 ```markdown
 ---
@@ -480,15 +480,15 @@ $ARGUMENTS
 3. Create Jira items
 ```
 
-**Transformation:**
+**轉變：**
 
-- Copy frontmatter with adjustments
-- Rewrite script paths (relative to repo root)
-- Add extension context (config location)
+- 複製前言並進行調整
+- 重寫腳本路徑（相對於倉函式庫根目錄）
+- 新增擴充上下文（設定位置）
 
-#### Gemini CLI Registration
+#### Gemini CLI 註冊
 
-**Output**: `.gemini/commands/speckit.jira.specstoissues.toml`
+**輸出**：`.gemini/commands/speckit.jira.specstoissues.toml`
 
 ```toml
 [command]
@@ -518,15 +518,15 @@ content = """
 """
 ```
 
-**Transformation:**
+**轉變：**
 
-- Convert Markdown frontmatter to TOML
-- Convert `$ARGUMENTS` to `{{args}}`
-- Rewrite script paths
+- 將 Markdown frontmatter 轉換為 TOML
+- 將 `$ARGUMENTS` 轉換為 `{{args}}`
+- 重寫腳本路徑
 
-### Registration Code
+### 註冊碼
 
-**Location**: `src/specify_cli/extensions.py`
+**地點**：`src/specify_cli/extensions.py`
 
 ```python
 def register_extension_commands(
@@ -595,9 +595,9 @@ def convert_to_claude(
 
 ---
 
-## Configuration Management
+## 設定管理
 
-### Configuration File Hierarchy
+### 設定檔層次結構
 
 ```yaml
 # .specify/extensions/jira/jira-config.yml (Project config)
@@ -623,9 +623,9 @@ project:
 export SPECKIT_JIRA_PROJECT_KEY="DEVTEST"
 ```
 
-### Config Loading Function
+### 設定載入功能
 
-**Location**: Extension command (e.g., `commands/specstoissues.md`)
+**位置**：擴充指令（例如 `commands/specstoissues.md`）
 
 ````markdown
 ## Load Configuration
@@ -674,9 +674,9 @@ fi
 echo "$defaults"
 ```
 
-### Config Validation
+### 設定驗證
 
-**In command file**:
+**在命令檔**：
 
 ````markdown
 ## Validate Configuration
@@ -719,11 +719,11 @@ hooks:
     condition: "config.project.key is set"
 ```
 
-### Hook Registration
+### 掛鉤註冊
 
-**During extension installation**, record hooks in project config:
+**在擴充安裝過程中**，在專案設定中記錄鉤子：
 
-**File**: `.specify/extensions.yml` (project-level extension config)
+**檔案**：`.specify/extensions.yml`（專案級擴充設定）
 
 ```yaml
 # Extensions installed in this project
@@ -752,11 +752,11 @@ hooks:
       prompt: "Sync completion status to Jira?"
 ```
 
-### Hook Execution
+### 鉤子執行
 
-**In core command** (e.g., `templates/commands/tasks.md`):
+**在核心指令中**（例如，`templates/commands/tasks.md`）：
 
-Add at end of command:
+在命令末尾添加：
 
 ````markdown
 ## Extension Hooks
@@ -826,9 +826,9 @@ def execute_command_with_hooks(command_name: str, args: str):
     return result
 ```
 
-### Hook Conditions
+### 掛鉤條件
 
-Extensions can specify **conditions** for hooks:
+擴充可以為鉤子指定**條件**：
 
 ```yaml
 hooks:
@@ -838,7 +838,7 @@ hooks:
     condition: "config.project.key is set and config.enabled == true"
 ```
 
-**Condition evaluation** (in hook executor):
+**條件評估**（在鉤子執行器中）：
 
 ```python
 def should_execute_hook(hook: dict, config: dict) -> bool:
@@ -856,43 +856,43 @@ def should_execute_hook(hook: dict, config: dict) -> bool:
 
 ---
 
-## Extension Discovery & Catalog
+## 擴展發現和目錄
 
-### Dual Catalog System
+### 雙目錄系統
 
-Spec Kit uses two catalog files with different purposes:
+Spec Kit 使用兩個不同用途的目錄檔案：
 
-#### User Catalog (`catalog.json`)
+#### 使用者目錄 (`catalog.json`)
 
-**URL**: `https://raw.githubusercontent.com/github/spec-kit/main/extensions/catalog.json`
+**網址**： `https://raw.githubusercontent.com/github/spec-kit/main/extensions/catalog.json`
 
-- **Purpose**: Organization's curated catalog of approved extensions
-- **Default State**: Empty by design - users populate with extensions they trust
-- **Usage**: Default catalog used by `specify extension` CLI commands
-- **Control**: Organizations maintain their own fork/version for their teams
+- **目的**：組織批准的擴展的精選目錄
+- **預設狀態**：設計為空 - 使用者使用他們信任的擴充功能進行填充
+- **用法**： `specify extension` CLI 指令使用的預設目錄
+- **控制**：組織為其團隊維護自己的分叉/version
 
-#### Community Reference Catalog (`catalog.community.json`)
+#### 社區參考目錄 (`catalog.community.json`)
 
-**URL**: `https://raw.githubusercontent.com/github/spec-kit/main/extensions/catalog.community.json`
+**網址**： `https://raw.githubusercontent.com/github/spec-kit/main/extensions/catalog.community.json`
 
-- **Purpose**: Reference catalog of available community-contributed extensions
-- **Verification**: Community extensions may have `verified: false` initially
-- **Status**: Active - open for community contributions
-- **Submission**: Via Pull Request following the Extension Publishing Guide
-- **Usage**: Browse to discover extensions, then copy to your `catalog.json`
+- **目的**：可用社區貢獻的擴展的參考目錄
+- **驗證**：社區擴展最初可能有 `verified: false`
+- **狀態**：活躍 - 開放供社區貢獻
+- **提交**：按照擴充發布指南透過 Pull Request
+- **用法**：瀏覽以發現擴展，然後複製到您的 `catalog.json`
 
-**How It Works:**
+**它是如何工作的：**
 
-1. **Discover**: Browse `catalog.community.json` to find available extensions
-2. **Review**: Evaluate extensions for security, quality, and organizational fit
-3. **Curate**: Copy approved extension entries from community catalog to your `catalog.json`
-4. **Install**: Use `specify extension add <name>` (pulls from your curated catalog)
+1. **發現**：瀏覽 `catalog.community.json` 以查找可用的擴展
+2. **審查**：評估擴展的安全性、品質和組織適應性
+3. **規劃**：將批准的​​擴展條目從社區目錄複製到您的 `catalog.json`
+4. **安裝**：使用`指定擴充功能添加 <name>`（從您策劃的目錄中提取）
 
-This approach gives organizations full control over which extensions are available to their teams while maintaining a shared community resource for discovery.
+這種方法使組織能夠完全控制其團隊可以使用哪些擴展，同時維護共享的社區資源以供發現。
 
-### Catalog Format
+### 目錄格式
 
-**Format** (same for both catalogs):
+**格式**（兩個目錄相同）：
 
 ```json
 {
@@ -943,7 +943,7 @@ This approach gives organizations full control over which extensions are availab
 }
 ```
 
-### Catalog Discovery Commands
+### 目錄發現指令
 
 ```bash
 # List all available extensions
@@ -959,11 +959,11 @@ specify extension search --tag issue-tracking
 specify extension info jira
 ```
 
-### Custom Catalogs
+### 客製化目錄
 
-**⚠️ FUTURE FEATURE - NOT YET IMPLEMENTED**
+**⚠️ 未來功能 - 尚未實現**
 
-The following catalog management commands are proposed design concepts but are not yet available in the current implementation:
+以下目錄管理指令是建議的設計概念，但在目前實作中尚不可用：
 
 ```bash
 # Add custom catalog (FUTURE - NOT AVAILABLE)
@@ -976,15 +976,15 @@ specify extension set-catalog --default https://internal.company.com/spec-kit/ca
 specify extension catalogs
 ```
 
-**Proposed catalog priority** (future design):
+**建議的目錄優先順序**（未來設計）：
 
-1. Project-specific catalog (`.specify/extension-catalogs.yml`) - *not implemented*
-2. User-level catalog (`~/.specify/extension-catalogs.yml`) - *not implemented*
-3. Default GitHub catalog
+1. 專案特定目錄 (`.specify/extension-catalogs.yml`) - *未實施*
+2. 使用者級目錄 (`~/.specify/extension-catalogs.yml`) - *未實現*
+3. 預設 GitHub 目錄
 
-#### Current Implementation: SPECKIT_CATALOG_URL
+#### 目前實作：SPECKIT_CATALOG_URL
 
-**The currently available method** for using custom catalogs is the `SPECKIT_CATALOG_URL` environment variable:
+**目前可用的使用自訂目錄的方法**是 `SPECKIT_CATALOG_URL` 環境變數：
 
 ```bash
 # Point to your organization's catalog
@@ -995,12 +995,12 @@ specify extension search       # Uses custom catalog
 specify extension add jira     # Installs from custom catalog
 ```
 
-**Requirements:**
-- URL must use HTTPS (HTTP only allowed for localhost testing)
-- Catalog must follow the standard catalog.json schema
-- Must be publicly accessible or accessible within your network
+**要求：**
+- URL 必須使用 HTTPS（HTTP 僅允許用於本機主機測試）
+- 目錄必須遵循標準catalog.json架構
+- 必須可公開存取或在您的網路內可訪問
 
-**Example for testing:**
+**測試範例：**
 ```bash
 # Test with localhost during development
 export SPECKIT_CATALOG_URL="http://localhost:8000/catalog.json"
@@ -1009,13 +1009,13 @@ specify extension search
 
 ---
 
-## CLI Commands
+## CLI 指令
 
-### `specify extension` Subcommands
+### `specify extension` 子指令
 
 #### `specify extension list`
 
-List installed extensions in current project.
+列出目前專案中已安裝的擴充功能。
 
 ```bash
 $ specify extension list
@@ -1028,14 +1028,14 @@ Installed Extensions:
     Commands: 1 | Hooks: 1 | Status: Enabled
 ```
 
-**Options:**
+**選項：**
 
-- `--available`: Show available (not installed) extensions from catalog
-- `--all`: Show both installed and available
+- `--available`：顯示目錄中可用（未安裝）的擴展
+- `--all`：顯示已安裝和可用
 
 #### `specify extension search [QUERY]`
 
-Search extension catalog.
+搜尋擴充目錄。
 
 ```bash
 $ specify extension search jira
@@ -1060,15 +1060,15 @@ Found 1 extension:
 Install: specify extension add jira
 ```
 
-**Options:**
+**選項：**
 
-- `--tag TAG`: Filter by tag
-- `--author AUTHOR`: Filter by author
-- `--verified`: Show only verified extensions
+- `--tag TAG`：按標籤過濾
+- `--author AUTHOR`：按作者過濾
+- `--verified`：僅顯示經過驗證的擴展
 
 #### `specify extension info NAME`
 
-Show detailed information about an extension.
+顯示有​​關擴充功能的詳細資訊。
 
 ```bash
 $ specify extension info jira
@@ -1106,7 +1106,7 @@ Install: specify extension add jira
 
 #### `specify extension add NAME`
 
-Install an extension.
+安裝擴充。
 
 ```bash
 $ specify extension add jira
@@ -1131,16 +1131,16 @@ Next steps:
   3. Use commands: /speckit.jira.specstoissues
 ```
 
-**Options:**
+**選項：**
 
-- `--from URL`: Install from custom URL or Git repo
-- `--version VERSION`: Install specific version
-- `--dev PATH`: Install from local path (development mode)
-- `--no-register`: Skip command registration (manual setup)
+- `--from URL`：從自訂 URL 或 Git 儲存庫安裝
+- `--version VERSION`：安裝特定版本
+- `--dev PATH`：從本機路徑安裝（開發模式）
+- `--no-register`：跳過指令註冊（手動設定）
 
 #### `specify extension remove NAME`
 
-Uninstall an extension.
+卸載擴充功能。
 
 ```bash
 $ specify extension remove jira
@@ -1162,14 +1162,14 @@ Extension removed successfully.
 To reinstall: specify extension add jira
 ```
 
-**Options:**
+**選項：**
 
-- `--keep-config`: Don't remove config file
-- `--force`: Skip confirmation
+- `--keep-config`：不要刪除設定文件
+- `--force`：跳過確認
 
 #### `specify extension update [NAME]`
 
-Update extension(s) to latest version.
+將擴充功能更新到最新版本。
 
 ```bash
 $ specify extension update jira
@@ -1197,15 +1197,15 @@ Extension updated successfully!
 Changelog: https://github.com/statsperform/spec-kit-jira/blob/main/CHANGELOG.md#v110
 ```
 
-**Options:**
+**選項：**
 
-- `--all`: Update all extensions
-- `--check`: Check for updates without installing
-- `--force`: Force update even if already latest
+- `--all`：更新所有擴展
+- `--check`：檢查更新而不安裝
+- `--force`：強制更新，即使已經是最新的
 
 #### `specify extension enable/disable NAME`
 
-Enable or disable an extension without removing it.
+啟用或停用擴充功能而不刪除它。
 
 ```bash
 $ specify extension disable jira
@@ -1219,19 +1219,19 @@ To re-enable: specify extension enable jira
 
 ---
 
-## Compatibility & Versioning
+## 相容性和版本控制
 
-### Semantic Versioning
+### 語意版本控制
 
-Extensions follow [SemVer 2.0.0](https://semver.org/):
+擴展遵循 [語意版本 2.0.0](https://semver.org/)：
 
-- **MAJOR**: Breaking changes (command API changes, config schema changes)
-- **MINOR**: New features (new commands, new config options)
-- **PATCH**: Bug fixes (no API changes)
+- **主要**：重大變更（指令 API 變更、設定架構變更）
+- **次要**：新功能（新指令、新設定選項）
+- **補丁**：錯誤修復（無 API 更改）
 
-### Compatibility Checks
+### 相容性檢查
 
-**At installation:**
+**安裝時：**
 
 ```python
 def check_compatibility(extension_manifest: dict) -> bool:
@@ -1281,9 +1281,9 @@ def check_compatibility(extension_manifest: dict) -> bool:
     return True
 ```
 
-### Deprecation Policy
+### 棄用政策
 
-**Extension manifest can mark features as deprecated:**
+**擴充清單可以將功能標記為已棄用：**
 
 ```yaml
 provides:
@@ -1295,7 +1295,7 @@ provides:
       removal_version: "2.0.0"
 ```
 
-**At runtime, show warning:**
+**執行時，顯示警告：**
 
 ```text
 ⚠️  Warning: /speckit.jira.old-command is deprecated
@@ -1305,30 +1305,30 @@ provides:
 
 ---
 
-## Security Considerations
+## 安全考慮
 
-### Trust Model
+### 信任模型
 
-Extensions run with **same privileges as AI agent**:
+擴充功能以**與 AI 代理程式相同的權限執行**：
 
-- Can execute shell commands
-- Can read/write files in project
-- Can make network requests
+- 可以執行shell命令
+- 可以讀取專案中的/write文件
+- 可以發出網路請求
 
-**Trust boundary**: User must trust extension author.
+**信任邊界**：使用者必須信任擴展作者。
 
-### Verification
+### 確認
 
-**Verified Extensions** (in catalog):
+**已驗證的擴充**（在目錄中）：
 
-- Published by known organizations (GitHub, Stats Perform, etc.)
-- Code reviewed by spec-kit maintainers
-- Marked with ✓ badge in catalog
+- 由已知組織發布（GitHub、Stats Perform 等）
+- 由規範套件維護者審查的程式碼
+- 目錄中標有 ✓ 徽章
 
-**Community Extensions**:
+**社群擴展**：
 
-- Not verified, use at own risk
-- Show warning during installation:
+- 未經驗證，使用風險自擔
+- 安裝過程中顯示警告：
 
   ```text
   ⚠️  This extension is not verified.
@@ -1337,13 +1337,13 @@ Extensions run with **same privileges as AI agent**:
      Continue? (yes/no):
   ```
 
-### Sandboxing (Future)
+### 沙盒（未來）
 
-**Phase 2** (not in initial release):
+**第 2 階段**（不在初始版本）：
 
-- Extensions declare required permissions in manifest
-- CLI enforces permission boundaries
-- Example permissions: `filesystem:read`, `network:external`, `env:read`
+- 擴充在清單中聲明所需的權限
+- CLI 強制執行權限邊界
+- 權限範例：`filesystem:read`、`network:external`、`env:read`
 
 ```yaml
 # Future extension.yml
@@ -1354,9 +1354,9 @@ permissions:
   - "env:read:SPECKIT_JIRA_*"                    # Can read own env vars
 ```
 
-### Package Integrity
+### 包裝完整性
 
-**Future**: Sign extension packages with GPG/Sigstore
+**未來**：使用 GPG/Sigstore 簽署擴充包
 
 ```yaml
 # catalog.json
@@ -1368,53 +1368,53 @@ permissions:
 }
 ```
 
-CLI verifies signature before extraction.
+CLI 在提取之前驗證簽名。
 
 ---
 
-## Migration Strategy
+## 遷移策略
 
-### Backward Compatibility
+### 向後相容性
 
-**Goal**: Existing spec-kit projects work without changes.
+**目標**：現有規範套件專案無需更改即可執行。
 
-**Strategy**:
+**戰略**：
 
-1. **Core commands unchanged**: `/speckit.tasks`, `/speckit.implement`, etc. remain in core
+1. **核心指令不變**：`/speckit.tasks`、`/speckit.implement` 等保留在核心中
 
-2. **Optional extensions**: Users opt-in to extensions
+2. **可選擴展**：用戶選擇擴展
 
-3. **Gradual migration**: Existing `taskstoissues` stays in core, Jira extension is alternative
+3. **逐步遷移**：現有 `taskstoissues` 保留在核心中，Jira 擴充是替代方案
 
-4. **Deprecation timeline**:
-   - **v0.2.0**: Introduce extension system, keep core `taskstoissues`
-   - **v0.3.0**: Mark core `taskstoissues` as "legacy" (still works)
-   - **v1.0.0**: Consider removing core `taskstoissues` in favor of extension
+4. **棄用時間表**：
+   - **v0.2.0**：引進擴充系統，保留核心`taskstoissues`
+   - **v0.3.0**：將核心 `taskstoissues` 標記為「舊版」（仍然有效）
+   - **v1.0.0**：考慮刪除核心 `taskstoissues` 以支援擴展
 
-### Migration Path for Users
+### 使用者遷移路徑
 
-**Scenario 1**: User has no `taskstoissues` usage
+**場景 1**：使用者沒有 `taskstoissues` 使用情況
 
-- No migration needed, extensions are opt-in
+- 無需遷移，擴展是可選的
 
-**Scenario 2**: User uses core `taskstoissues` (GitHub Issues)
+**場景 2**：使用者使用核心 `taskstoissues`（GitHub 問題）
 
-- Works as before
-- Optional: Migrate to `github-projects` extension for more features
+- 像以前一樣工作
+- 可選：遷移到 `github-projects` 擴充以獲得更多功能
 
-**Scenario 3**: User wants Jira (new requirement)
+**場景 3**：使用者想要 Jira（新要求）
 
 - `specify extension add jira`
-- Configure and use
+- 設定和使用
 
-**Scenario 4**: User has custom scripts calling `taskstoissues`
+**場景 4**：使用者有呼叫 `taskstoissues` 的自訂腳本
 
-- Scripts still work (core command preserved)
-- Migration guide shows how to call extension commands instead
+- 腳本仍然有效（保留核心命令）
+- 遷移指南展示如何呼叫擴充命令
 
-### Extension Migration Guide
+### 擴展遷移指南
 
-**For extension authors** (if core command becomes extension):
+**對於擴展作者**（如果核心命令成為擴展）：
 
 ```bash
 # Old (core command)
@@ -1425,7 +1425,7 @@ specify extension add github-projects
 /speckit.github.taskstoissues
 ```
 
-**Compatibility shim** (if needed):
+**相容性墊片**（如果需要）：
 
 ```yaml
 # extension.yml
@@ -1436,217 +1436,217 @@ provides:
       aliases: ["speckit.taskstoissues"]  # Backward compatibility
 ```
 
-AI agent registers both names, so old scripts work.
+AI 代理程式註冊了兩個名稱，因此舊腳本可以工作。
 
 ---
 
-## Implementation Phases
+## 實施階段
 
-### Phase 1: Core Extension System (Week 1-2)
+### 第一階段：核心擴展系統（第 1-2 週）
 
-**Goal**: Basic extension infrastructure
+**目標**：基本的擴展基礎設施
 
-**Deliverables**:
+**可交付成果**：
 
-- [ ] Extension manifest schema (`extension.yml`)
-- [ ] Extension directory structure
-- [ ] CLI commands:
+- [ ] 擴充清單架構 (`extension.yml`)
+- [ ] 擴展目錄結構
+- [ ] CLI 指令：
   - [ ] `specify extension list`
-  - [ ] `specify extension add` (from URL)
+  - [ ] `specify extension add`（來自 URL）
   - [ ] `specify extension remove`
-- [ ] Extension registry (`.specify/extensions/.registry`)
-- [ ] Command registration (Claude only initially)
-- [ ] Basic validation (manifest schema, compatibility)
-- [ ] Documentation (extension development guide)
+- [ ] 擴充註冊表 (`.specify/extensions/.registry`)
+- [ ] 命令註冊（僅限克勞德最初）
+- [ ] 基本驗證（清單架構、相容性）
+- [ ] 文件（擴充開發指南）
 
-**Testing**:
+**測試**：
 
-- [ ] Unit tests for manifest parsing
-- [ ] Integration test: Install dummy extension
-- [ ] Integration test: Register commands with Claude
+- [ ] 清單解析的單元測試
+- [ ] 整合測試：安裝虛擬擴展
+- [ ] 整合測試：向 Claude 註冊命令
 
-### Phase 2: Jira Extension (Week 3)
+### 第 2 階段：Jira 擴展（第 3 週）
 
-**Goal**: First production extension
+**目標**：首次生產擴展
 
-**Deliverables**:
+**可交付成果**：
 
-- [ ] Create `spec-kit-jira` repository
-- [ ] Port Jira functionality to extension
-- [ ] Create `jira-config.yml` template
-- [ ] Commands:
+- [ ] 建立 `spec-kit-jira` 儲存庫
+- [ ] 將 Jira 功能移植到擴展
+- [ ] 建立 `jira-config.yml` 模板
+- [ ] 命令：
   - [ ] `specstoissues.md`
   - [ ] `discover-fields.md`
   - [ ] `sync-status.md`
-- [ ] Helper scripts
-- [ ] Documentation (README, configuration guide, examples)
-- [ ] Release v1.0.0
+- [ ] 幫助腳本
+- [ ] 文件（README、設定指南、範例）
+- [ ] 發布v1.0.0
 
-**Testing**:
+**測試**：
 
-- [ ] Test on `eng-msa-ts` project
-- [ ] Verify spec→Epic, phase→Story, task→Issue mapping
-- [ ] Test configuration loading and validation
-- [ ] Test custom field application
+- [ ] 在 `eng-msa-ts` 專案上進行測試
+- [ ] 驗證規格→史詩、階段→故事、任務→問題映射
+- [ ] 測試設定載入和驗證
+- [ ] 測試自訂欄位應用程式
 
-### Phase 3: Extension Catalog (Week 4)
+### 第 3 階段：擴展目錄（第 4 週）
 
-**Goal**: Discovery and distribution
+**目標**：發現與分發
 
-**Deliverables**:
+**可交付成果**：
 
-- [ ] Central catalog (`extensions/catalog.json` in spec-kit repo)
-- [ ] Catalog fetch and parsing
-- [ ] CLI commands:
+- [ ] 中央目錄（規格套件儲存庫中的 `extensions/catalog.json`）
+- [ ] 目錄取得和解析
+- [ ] CLI 指令：
   - [ ] `specify extension search`
   - [ ] `specify extension info`
-- [ ] Catalog publishing process (GitHub Action)
-- [ ] Documentation (how to publish extensions)
+- [ ] 目錄發布過程（GitHub 操作）
+- [ ] 文件（如何發布擴充功能）
 
-**Testing**:
+**測試**：
 
-- [ ] Test catalog fetch
-- [ ] Test extension search/filtering
-- [ ] Test catalog caching
+- [ ] 測試目錄獲取
+- [ ] 測試擴充搜尋_/filtering
+- [ ] 測試目錄緩存
 
-### Phase 4: Advanced Features (Week 5-6)
+### 第 4 階段：進階功能（第 5-6 週）
 
-**Goal**: Hooks, updates, multi-agent support
+**目標**：掛鉤、更新、多代理支持
 
-**Deliverables**:
+**可交付成果**：
 
-- [ ] Hook system (`hooks` in extension.yml)
-- [ ] Hook registration and execution
-- [ ] Project extensions config (`.specify/extensions.yml`)
-- [ ] CLI commands:
+- [ ] 掛鉤系統（extension.yml 中的 `hooks`）
+- [ ] 鉤子註冊和執行
+- [ ] 專案擴充設定 (`.specify/extensions.yml`)
+- [ ] CLI 指令：
   - [ ] `specify extension update`
   - [ ] `specify extension enable/disable`
-- [ ] Command registration for multiple agents (Gemini, Copilot)
-- [ ] Extension update notifications
-- [ ] Configuration layer resolution (project, local, env)
+- [ ] 多個代理的命令註冊（Gemini，Copilot）
+- [ ] 擴展更新通知
+- [ ] 設定層解析（專案、本地、env）
 
-**Testing**:
+**測試**：
 
-- [ ] Test hooks in core commands
-- [ ] Test extension updates (preserve config)
-- [ ] Test multi-agent registration
+- [ ] 測試核心命令中的鉤子
+- [ ] 測試擴充更新（保留設定）
+- [ ] 測試多代理註冊
 
-### Phase 5: Polish & Documentation (Week 7)
+### 第 5 階段：潤飾和文件（第 7 週）
 
-**Goal**: Production ready
+**目標**：生產就緒
 
-**Deliverables**:
+**可交付成果**：
 
-- [ ] Comprehensive documentation:
-  - [ ] User guide (installing/using extensions)
-  - [ ] Extension development guide
-  - [ ] Extension API reference
-  - [ ] Migration guide (core → extension)
-- [ ] Error messages and validation improvements
-- [ ] CLI help text updates
-- [ ] Example extension template (cookiecutter)
-- [ ] Blog post / announcement
-- [ ] Video tutorial
+- [ ] 綜合文檔：
+  - [ ] 使用者指南（安裝/using 擴充功能）
+  - [ ] 擴充開發指南
+  - [ ] 擴充 API 參考
+  - [ ] 遷移指南（核心→擴充）
+- [ ] 錯誤訊息和驗證改進
+- [ ] CLI 幫助文字更新
+- [ ] 範例擴充模板 (cookiecutter)
+- [ ] 部落格文章/公告
+- [ ] 影片教學
 
-**Testing**:
+**測試**：
 
-- [ ] End-to-end testing on multiple projects
-- [ ] Community beta testing
-- [ ] Performance testing (large projects)
-
----
-
-## Open Questions
-
-### 1. Extension Namespace
-
-**Question**: Should extension commands use namespace prefix?
-
-**Options**:
-
-- A) Prefixed: `/speckit.jira.specstoissues` (explicit, avoids conflicts)
-- B) Short alias: `/jira.specstoissues` (shorter, less verbose)
-- C) Both: Register both names, prefer prefixed in docs
-
-**Recommendation**: C (both), prefixed is canonical
+- [ ] 對多個專案進行端對端測試
+- [ ] 社區 Beta 測試
+- [ ] 效能測試（大型專案）
 
 ---
 
-### 2. Config File Location
+## 開放式問題
 
-**Question**: Where should extension configs live?
+### 1. 擴充命名空間
 
-**Options**:
+**問題**：擴充指令是否應該使用命名空間前綴？
 
-- A) Extension directory: `.specify/extensions/jira/jira-config.yml` (encapsulated)
-- B) Root level: `.specify/jira-config.yml` (more visible)
-- C) Unified: `.specify/extensions.yml` (all extension configs in one file)
+**選項**：
 
-**Recommendation**: A (extension directory), cleaner separation
+- A) 字首：`/speckit.jira.specstoissues`（明確，避免衝突）
+- B) 短別名：`/jira.specstoissues`（更短、更簡潔）
+- C) 兩者：註冊兩個名稱，最好在文件中加入前綴
 
----
-
-### 3. Command File Format
-
-**Question**: Should extensions use universal format or agent-specific?
-
-**Options**:
-
-- A) Universal Markdown: Extensions write once, CLI converts per-agent
-- B) Agent-specific: Extensions provide separate files for each agent
-- C) Hybrid: Universal default, agent-specific overrides
-
-**Recommendation**: A (universal), reduces duplication
+**推薦**：C（兩者），前綴是規範的
 
 ---
 
-### 4. Hook Execution Model
+### 2. 設定檔位置
 
-**Question**: How should hooks execute?
+**問題**：擴充設定應該放在哪裡？
 
-**Options**:
+**選項**：
 
-- A) AI agent interprets: Core commands output `EXECUTE_COMMAND: name`
-- B) CLI executes: Core commands call `specify extension hook after_tasks`
-- C) Agent built-in: Extension system built into AI agent (Claude SDK)
+- A) 擴充目錄：`.specify/extensions/jira/jira-config.yml`（封裝的）
+- B) 根級別：`.specify/jira-config.yml`（更明顯）
+- C) 統一：`.specify/extensions.yml`（所有擴充設定位於一個檔案）
 
-**Recommendation**: A initially (simpler), move to C long-term
-
----
-
-### 5. Extension Distribution
-
-**Question**: How should extensions be packaged?
-
-**Options**:
-
-- A) ZIP archives: Downloaded from GitHub releases
-- B) Git repos: Cloned directly (`git clone`)
-- C) Python packages: Installable via `uv tool install`
-
-**Recommendation**: A (ZIP), simpler for non-Python extensions in future
+**推薦**：A（擴充目錄），更乾淨的分離
 
 ---
 
-### 6. Multi-Version Support
+### 3. 命令檔格式
 
-**Question**: Can multiple versions of same extension coexist?
+**問題**：擴充應該使用通用格式還是特定於代理的格式？
 
-**Options**:
+**選項**：
 
-- A) Single version: Only one version installed at a time
-- B) Multi-version: Side-by-side versions (`.specify/extensions/jira@1.0/`, `.specify/extensions/jira@2.0/`)
-- C) Per-branch: Different branches use different versions
+- A) 通用 Markdown：擴充寫入一次，CLI 轉換每個代理
+- B) 特定於代理：擴展為每個代理提供單獨的文件
+- C) 混合：通用預設值、特定於代理的覆蓋
 
-**Recommendation**: A initially (simpler), consider B in future if needed
+**推薦**：A（通用），減少重複
 
 ---
 
-## Appendices
+### 4. Hook執行模型
 
-### Appendix A: Example Extension Structure
+**問題**：hooks應該如何執行？
 
-**Complete structure of `spec-kit-jira` extension:**
+**選項**：
+
+- A) AI 代理解釋：核心指令輸出 `EXECUTE_COMMAND: name`
+- B) CLI 執行：核心指令呼叫 `specify extension hook after_tasks`
+- C) 內建代理：擴充系統內建於AI代理程式中（Claude SDK）
+
+**建議**：最初是 A（更簡單），長期轉向 C
+
+---
+
+### 5. 擴展分發
+
+**問題**：擴充應該如何打包？
+
+**選項**：
+
+- A) ZIP 檔案：從 GitHub 版本下載
+- B) Git 儲存庫：直接克隆 (`git clone`)
+- C) Python 套件：可透過 `uv tool install` 安裝
+
+**推薦**：A (ZIP)，對於未來的非 Python 擴充來說更簡單
+
+---
+
+### 6. 多版本支持
+
+**問題**：同一擴充的多個版本可以共存嗎？
+
+**選項**：
+
+- A) 單版本：一次只安裝一個版本
+- B) 多重版本：平行版本（`.specify/extensions/jira@1.0/`、`.specify/extensions/jira@2.0/`）
+- C) 每個分支：不同分支使用不同版本
+
+**建議**：最初是A（更簡單），如果需要的話將來考慮B
+
+---
+
+## 附錄
+
+### 附錄 A：擴展結構範例
+
+** `spec-kit-jira` 擴充的完整結構：**
 
 ```text
 spec-kit-jira/
@@ -1686,71 +1686,71 @@ spec-kit-jira/
         └── release.yml              # Automated releases
 ```
 
-### Appendix B: Extension Development Guide (Outline)
+### 附錄B：擴展開髮指南（概要）
 
-**Documentation for creating new extensions:**
+**建立新擴充的文件：**
 
-1. **Getting Started**
-   - Prerequisites (tools needed)
-   - Extension template (cookiecutter)
-   - Directory structure
+1. **入門**
+   - 先決條件（需要的工具）
+   - 擴充模板（cookiecutter）
+   - 目錄結構
 
-2. **Extension Manifest**
-   - Schema reference
-   - Required vs optional fields
-   - Versioning guidelines
+2. **擴充清單**
+   - 架構參考
+   - 必填字段與可選字段
+   - 版本控制指南
 
-3. **Command Development**
-   - Universal command format
-   - Frontmatter specification
-   - Template variables
-   - Script references
+3. **命令開發**
+   - 通用命令格式
+   - 前端規範
+   - 模板變數
+   - 腳本參考
 
-4. **Configuration**
-   - Config file structure
-   - Schema validation
-   - Layered config resolution
-   - Environment variable overrides
+4. **設定**
+   - 設定檔結構
+   - 模式驗證
+   - 分層設定解析
+   - 環境變數覆蓋
 
-5. **Hooks**
-   - Available hook points
-   - Hook registration
-   - Conditional execution
-   - Best practices
+5. **掛鉤**
+   - 可用的掛鉤點
+   - 鉤子註冊
+   - 有條件執行
+   - 最佳實踐
 
-6. **Testing**
-   - Local development setup
-   - Testing with `--dev` flag
-   - Validation checklist
-   - Integration testing
+6. **測試**
+   - 本地開發設定
+   - 使用 `--dev` 標誌進行測試
+   - 驗證清單
+   - 整合測試
 
-7. **Publishing**
-   - Packaging (ZIP format)
-   - GitHub releases
-   - Catalog submission
-   - Versioning strategy
+7. **出版**
+   - 包裝（ZIP 格式）
+   - GitHub 發布
+   - 目錄提交
+   - 版本控制策略
 
-8. **Examples**
-   - Minimal extension
-   - Extension with hooks
-   - Extension with configuration
-   - Extension with multiple commands
+8. **範例**
+   - 最小延伸
+   - 帶掛鉤的延長件
+   - 帶設定的擴展
+   - 具有多個命令的擴展
 
-### Appendix C: Compatibility Matrix
+### 附錄 C：相容性矩陣
 
-**Planned support matrix:**
+**計劃支援矩陣：**
 
-| Extension Feature | Spec Kit Version | AI Agent Support |
+| 擴充功能 | Spec Kit 版本 | AI 代理支持 |
 |-------------------|------------------|------------------|
-| Basic commands | 0.2.0+ | Claude, Gemini, Copilot |
-| Hooks (after_tasks) | 0.3.0+ | Claude, Gemini |
-| Config validation | 0.2.0+ | All |
-| Multiple catalogs | 0.4.0+ | All |
-| Permissions (sandboxing) | 1.0.0+ | TBD |
+| 基本指令 | 0.2.0+ | 克勞德，Gemini，Copilot |
+| 掛鉤（after_tasks） | 0.3.0+ | 克勞德，Gemini |
+| 設定驗證 | 0.2.0+ | 全部 |
+| 多個目錄 | 0.4.0+ | 全部 |
+| 權限（沙盒） | 1.0.0+ | 待定 |
 
-### Appendix D: Extension Catalog Schema
+### 附錄 D：擴充目錄架構
 
-**Full schema for `catalog.json`:**
+** `catalog.json` 的完整架構：**
 
 ```json
 {
@@ -1819,30 +1819,30 @@ spec-kit-jira/
 
 ---
 
-## Summary & Next Steps
+## 摘要與後續步驟
 
-This RFC proposes a comprehensive extension system for Spec Kit that:
+該 RFC 為 Spec Kit 提出了一個全面的擴展系統，該系統：
 
-1. **Keeps core lean** while enabling unlimited integrations
-2. **Supports multiple agents** (Claude, Gemini, Copilot, etc.)
-3. **Provides clear extension API** for community contributions
-4. **Enables independent versioning** of extensions and core
-5. **Includes safety mechanisms** (validation, compatibility checks)
+1. **保持核心精益**，同時實現無限集成
+2. **支援多個代理商**（Claude、Gemini、Copilot 等）
+3. **為社區貢獻提供明確的擴展 API_**
+4. **啟用擴充功能和核心的獨立版本控制**
+5. **包括安全機制**（驗證、相容性檢查）
 
-### Immediate Next Steps
+### 立即採取的後續步驟
 
-1. **Review this RFC** with stakeholders
-2. **Gather feedback** on open questions
-3. **Refine design** based on feedback
-4. **Proceed to Phase A**: Implement core extension system
-5. **Then Phase B**: Build Jira extension as proof-of-concept
+1. **與利害關係人一起審查此 RFC**
+2. **收集有關開放問題的回饋**
+3. **根據回饋完善設計**
+4. **進入A階段**：實施核心擴充系統
+5. **然後是 B 階段**：建立 Jira 擴充作為概念驗證
 
 ---
 
-## Questions for Discussion
+## 供討論的問題
 
-1. Does the extension architecture meet your needs for Jira integration?
-2. Are there additional hook points we should consider?
-3. Should we support extension dependencies (extension A requires extension B)?
-4. How should we handle extension deprecation/removal from catalog?
-5. What level of sandboxing/permissions do we need in v1.0?
+1. 擴展架構是否滿足您對 Jira 整合的需求？
+2. 我們還應該考慮其他掛鉤點嗎？
+3. 我們是否應該支援擴展依賴關係（擴展 A 需要擴展 B）？
+4. 我們該如何處理目錄中的擴充棄用/removal？
+5. v1.0 我們需要什麼等級的沙箱/permissions？

@@ -1,41 +1,41 @@
-# Implementation Plan: [FEATURE]
+# 實施計劃：[特點]
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**分行**： `[###-feature-name]` | **日期**：[日期] | **規格**：[連結]
+**輸入**：來自 `/specs/[###-feature-name]/spec.md` 的功能規範
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
+**注意**：此模板由 `/speckit.plan` 指令填寫。請參閱 `.specify/templates/plan-template.md` 以了解執行工作流程。
 
-## Summary
+## 概括
 
-[Extract from feature spec: primary requirement + technical approach from research]
+[功能規範摘錄：主要要求+研究的技術方法]
 
-## Technical Context
+## 技術背景
 
 <!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
+  需要採取的行動：用技術細節取代本節的內容
+  對於該專案。這裡的結構是以顧問的身份提出的，以指導
+  迭代過程。
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**語言/Version**: [例如，Python 3.11、Swift 5.9、Rust 1.75 或需要澄清]  
+**主要依賴項**：[例如 FastAPI、UIKit、LLVM 或需要澄清]  
+**儲存**：[如果適用，例如 PostgreSQL、CoreData、檔案或 N/A]  
+**測試**：[例如 pytest、XCTest、貨物測試或需要澄清]  
+**目標平台**：[例如，Linux 伺服器、iOS 15+、WASM 或需要澄清]
+**專案類型**：[例如，函式庫/cli/web-service/mobile-app/compiler/desktop-app 或需要澄清]  
+**效能目標**：[特定領域，例如 1000 條請求/s、10k 行/sec、60 fps 或需要澄清]  
+**限制**：[特定領域，例如，<200ms p95、<100MB 記憶體、離線功能或需要澄清]  
+**規模/Scope**: [特定領域，例如 10k 用戶、1M LOC、50 個螢幕或需要澄清]
 
-## Constitution Check
+## 體質檢查
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE：必須在第 0 階段研究前通過。第一階段設計後重新檢查。 *
 
-[Gates determined based on constitution file]
+[根據憲法文件確定的大門]
 
-## Project Structure
+## 專案結構
 
-### Documentation (this feature)
+### 文件（此功能）
 
 ```text
 specs/[###-feature]/
@@ -47,12 +47,12 @@ specs/[###-feature]/
 └── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
 ```
 
-### Source Code (repository root)
+### 原始碼（儲存庫根）
 <!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
+  所需操作：用具體佈局取代下面的佔位符樹
+  對於這個功能。刪除未使用的選項並擴展所選結構
+  真實路徑（例如，apps/admin、packages/something）。交付的計劃必須
+  不包括選項標籤。
 -->
 
 ```text
@@ -91,14 +91,14 @@ ios/ or android/
 └── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**結構決策**：[記錄所選結構並參考真實的結構
+上面捕獲的目錄]
 
-## Complexity Tracking
+## 複雜性追蹤
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+> **僅當憲法檢查存在必須證明合理的違規行為時才填寫**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
+| 違反 | 為什麼需要 | 更簡單的替代方案被拒絕，因為 |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| [例如，第四個專案] | [當前需求] | 【為什麼3個專案不足】 |
+| [例如，儲存庫模式] | [具體問題] | [為什麼直接DB存取不夠] |

@@ -1,19 +1,19 @@
-# Extension Development Guide
+# 擴充開發指南
 
-A guide for creating Spec Kit extensions.
+建立 Spec Kit 擴充的指南。
 
 ---
 
-## Quick Start
+## 快速入門
 
-### 1. Create Extension Directory
+### 1. 建立擴充目錄
 
 ```bash
 mkdir my-extension
 cd my-extension
 ```
 
-### 2. Create `extension.yml` Manifest
+### 2. 建立 `extension.yml` 清單
 
 ```yaml
 schema_version: "1.0"
@@ -60,15 +60,15 @@ tags:                                   # Optional: For catalog search
   - "utility"
 ```
 
-### 3. Create Commands Directory
+### 3. 建立命令目錄
 
 ```bash
 mkdir commands
 ```
 
-### 4. Create Command File
+### 4. 建立命令文件
 
-**File**: `commands/hello.md`
+**文件**： `commands/hello.md`
 
 ```markdown
 ---

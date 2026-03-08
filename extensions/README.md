@@ -1,114 +1,108 @@
-# Spec Kit Extensions
+# Spec Kit 擴展
 
-Extension system for [Spec Kit](https://github.com/github/spec-kit) - add new functionality without bloating the core framework.
+[Spec Kit](https://github.com/github/spec-kit) 的擴展系統 - 增加新功能而不造成核心框架膨脹。
 
-## Extension Catalogs
+## 擴充目錄
 
-Spec Kit provides two catalog files with different purposes:
+Spec Kit 提供了兩個不同用途的目錄檔案：
 
-### Your Catalog (`catalog.json`)
+### 您的目錄 (`catalog.json`)
 
-- **Purpose**: Default upstream catalog of extensions used by the Spec Kit CLI
-- **Default State**: Empty by design in the upstream project - you or your organization populate a fork/copy with extensions you trust
-- **Location (upstream)**: `extensions/catalog.json` in the GitHub-hosted spec-kit repo
-- **CLI Default**: The `specify extension` commands use the upstream catalog URL by default, unless overridden
-- **Org Catalog**: Point `SPECKIT_CATALOG_URL` at your organization's fork or hosted catalog JSON to use it instead of the upstream default
-- **Customization**: Copy entries from the community catalog into your org catalog, or add your own extensions directly
+- **用途**： Spec Kit CLI 使用的補充的預設上游目錄
+- **狀態預設**：上游專案中設計為空 - 您或您的組織使用您信任的擴展分裝叉/副本
+- **位置（上游）**： `extensions/catalog.json` 在 GitHub 託管的規範套件儲存函式函式庫中
+- **CLI 預設**： `specify extension` 預設預設使用上游目錄 URL，除非被覆寫
+- **組織目錄**：將 `SPECKIT_CATALOG_URL` 指向您組織的分支或託管目錄 JSON 以使用它而不是上游預設值
+- **自訂**：將社區目錄中的條目複製到您的組織目錄中，或直接添加您自己的擴展
 
-**Example override:**
+**覆蓋範例：**
 ```bash
 # Override the default upstream catalog with your organization's catalog
 export SPECKIT_CATALOG_URL="https://your-org.com/spec-kit/catalog.json"
 specify extension search  # Now uses your organization's catalog instead of the upstream default
 ```
 
-### Community Reference Catalog (`catalog.community.json`)
+### 社區參考目錄 (`catalog.community.json`)
 
-- **Purpose**: Browse available community-contributed extensions
-- **Status**: Active - contains extensions submitted by the community
-- **Location**: `extensions/catalog.community.json`
-- **Usage**: Reference catalog for discovering available extensions
-- **Submission**: Open to community contributions via Pull Request
+- **目的**：瀏覽可用的社區貢獻的擴展
+- **狀態**：活動 - 包含社區提交的擴展
+- **地點**：`extensions/catalog.community.json`
+- **用法**：用於發現可用擴充功能的參考目錄
+- **提交**：透過 Pull Request 接受社群貢獻
 
-**How It Works:**
+**它是如何工作的：**
 
-## Making Extensions Available
+## 使擴充可用
 
-You control which extensions your team can discover and install:
+您可以控制您的團隊可以發現和安裝哪些擴充功能：
 
-### Option 1: Curated Catalog (Recommended for Organizations)
+### 選項 1：精選目錄（推薦給組織）
 
-Populate your `catalog.json` with approved extensions:
+使用已核准的補充功能填滿您的 `catalog.json`：
 
-1. **Discover** extensions from various sources:
-   - Browse `catalog.community.json` for community extensions
-   - Find private/internal extensions in your organization's repos
-   - Discover extensions from trusted third parties
-2. **Review** extensions and choose which ones you want to make available
-3. **Add** those extension entries to your own `catalog.json`
-4. **Team members** can now discover and install them:
-   - `specify extension search` shows your curated catalog
-   - `specify extension add <name>` installs from your catalog
+1. **發現**來自各種來源的擴展：
+   - 瀏覽 `catalog.community.json` 取得社群擴展
+   - 在您組織的儲存函式函式庫中尋找 private/internal 補充
+   - 發現來自可信任第三方的擴展
+2. **查看**擴展並選擇您想要提供的擴展
+3. **將**這些補充新增至您自己的 `catalog.json`
+4. **團隊成員**現在可以發現並安裝它們：
+   - `specify extension search` 顯示規劃的目錄
+   - `指定擴展名添加 <name>` 從您的目錄安裝
 
-**Benefits**: Full control over available extensions, team consistency, organizational approval workflow
+**優點**： 完全控制可用擴充、團隊一致性、組織審批工作流程
 
-**Example**: Copy an entry from `catalog.community.json` to your `catalog.json`, then your team can discover and install it by name.
+**範例**：將從 `catalog.community.json` 複製到您的 `catalog.json`，然後您的團隊可以按名稱找到並安裝它。
 
-### Option 2: Direct URLs (For Ad-hoc Use)
+### 選項2：直接URL（供臨時使用）
 
-Skip catalog curation - team members install directly using URLs:
+跳過目錄管理 - 團隊成員直接使用URL進行安裝：
 
 ```bash
 specify extension add --from https://github.com/org/spec-kit-ext/archive/refs/tags/v1.0.0.zip
 ```
 
-**Benefits**: Quick for one-off testing or private extensions
+**優點**：快速進行一次性測試或私人擴展
 
-**Tradeoff**: Extensions installed this way won't appear in `specify extension search` for other team members unless you also add them to your `catalog.json`.
+**權衡**：以這種方式安裝的增強功能不會出現在其他團隊成員的 `specify extension search` 中，除非您也將它們新增至您的 `catalog.json` 中。
 
-## Available Community Extensions
+## 可用的社區擴展
 
-The following community-contributed extensions are available in [`catalog.community.json`](catalog.community.json):
+[`catalog.community.json`](catalog.community.json) 中提供了以下社區貢獻的擴展：
 
-| Extension | Purpose | URL |
+| 擴大 | 目的 | 網址 |
 |-----------|---------|-----|
-| Azure DevOps Integration | Sync user stories and tasks to Azure DevOps work items using OAuth authentication | [spec-kit-azure-devops](https://github.com/pragya247/spec-kit-azure-devops) |
-| Cleanup Extension | Post-implementation quality gate that reviews changes, fixes small issues (scout rule), creates tasks for medium issues, and generates analysis for large issues | [spec-kit-cleanup](https://github.com/dsrednicki/spec-kit-cleanup) |
-| Jira Integration | Create Jira Epics, Stories, and Issues from spec-kit specifications and task breakdowns with configurable hierarchy and custom field support | [spec-kit-jira](https://github.com/mbachorik/spec-kit-jira) |
-| Retrospective Extension | Post-implementation retrospective with spec adherence scoring, drift analysis, and human-gated spec updates | [spec-kit-retrospective](https://github.com/emi-dm/spec-kit-retrospective) |
-| Spec Sync | Detect and resolve drift between specs and implementation. AI-assisted resolution with human approval | [spec-kit-sync](https://github.com/bgervin/spec-kit-sync) |
-| V-Model Extension Pack | Enforces V-Model paired generation of development specs and test specs with full traceability | [spec-kit-v-model](https://github.com/leocamello/spec-kit-v-model) |
-| Verify Extension | Post-implementation quality gate that validates implemented code against specification artifacts | [spec-kit-verify](https://github.com/ismaelJimenez/spec-kit-verify) |
+| V型增強包 | 強制執行V模型生產開發規範和測試規範，並具有完全可追溯性 | [規格套件V模型](https://github.com/leocamello/spec-kit-v-model) |
+| 清理擴充 | 實施後品質關卡，用於審查變更、修復小問題（偵察規則）、為中型問題建立任務以及為大問題產生分析 | [規格套件清理](https://github.com/dsrednicki/spec-kit-cleanup) |
 
+## 添加您的擴展
 
-## Adding Your Extension
+### 提交流程
 
-### Submission Process
+要將您的擴充功能新增到社區目錄：
 
-To add your extension to the community catalog:
+1. **依照 [擴充開發指南](EXTENSION-DEVELOPMENT-GUIDE.md) 準備您的補充**
+2. **為您建立 GitHub 版本**
+3. **提交請求請求**：
+   - 將您的增強功能加入到 `extensions/catalog.community.json`
+   - 使用可用的增強表中的增強功能更新此 README
+4. **等待審核** - 如果滿足條件，維護人員將審核並合併
 
-1. **Prepare your extension** following the [Extension Development Guide](EXTENSION-DEVELOPMENT-GUIDE.md)
-2. **Create a GitHub release** for your extension
-3. **Submit a Pull Request** that:
-   - Adds your extension to `extensions/catalog.community.json`
-   - Updates this README with your extension in the Available Extensions table
-4. **Wait for review** - maintainers will review and merge if criteria are met
+請參閱 [擴充發布指南](EXTENSION-PUBLISHING-GUIDE.md) 以了解詳細的逐步說明。
 
-See the [Extension Publishing Guide](EXTENSION-PUBLISHING-GUIDE.md) for detailed step-by-step instructions.
+### 提交清單
 
-### Submission Checklist
+提交之前，請確保：
 
-Before submitting, ensure:
+- ✅ 有效的 `extension.yml` 清單
+- ✅ 完成 README 以及安裝和使用說明
+- ✅ 包含許可證文件
+- ✅ 使用語意版本建立的 GitHub 版本（例如 v1.0.0）
+- ✅ 在真實專案上測試擴展
+- ✅ 所有指令均依記錄執行
 
-- ✅ Valid `extension.yml` manifest
-- ✅ Complete README with installation and usage instructions
-- ✅ LICENSE file included
-- ✅ GitHub release created with semantic version (e.g., v1.0.0)
-- ✅ Extension tested on a real project
-- ✅ All commands working as documented
-
-## Installing Extensions
-Once extensions are available (either in your catalog or via direct URL), install them:
+## 安裝擴充
+一旦新增功能可用（在您的目錄中或透過直接 URL），請安裝它們：
 
 ```bash
 # From your curated catalog (by name)
@@ -122,4 +116,4 @@ specify extension add --from https://github.com/<org>/<repo>/archive/refs/tags/<
 specify extension list
 ```
 
-For more information, see the [Extension User Guide](EXTENSION-USER-GUIDE.md).
+有關詳細信息，請參閱[分機使用指南](EXTENSION-USER-GUIDE.md)。

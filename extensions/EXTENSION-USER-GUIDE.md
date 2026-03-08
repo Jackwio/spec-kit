@@ -1,58 +1,58 @@
-# Extension User Guide
+# 分機使用指南
 
-Complete guide for using Spec Kit extensions to enhance your workflow.
+使用 Spec Kit 擴充功能來增強您的工作流程的完整指南。
 
-## Table of Contents
+## 目錄
 
-1. [Introduction](#introduction)
-2. [Getting Started](#getting-started)
-3. [Finding Extensions](#finding-extensions)
-4. [Installing Extensions](#installing-extensions)
-5. [Using Extensions](#using-extensions)
-6. [Managing Extensions](#managing-extensions)
-7. [Configuration](#configuration)
-8. [Troubleshooting](#troubleshooting)
-9. [Best Practices](#best-practices)
-
----
-
-## Introduction
-
-### What are Extensions?
-
-Extensions are modular packages that add new commands and functionality to Spec Kit without bloating the core framework. They allow you to:
-
-- **Integrate** with external tools (Jira, Linear, GitHub, etc.)
-- **Automate** repetitive tasks with hooks
-- **Customize** workflows for your team
-- **Share** solutions across projects
-
-### Why Use Extensions?
-
-- **Clean Core**: Keeps spec-kit lightweight and focused
-- **Optional Features**: Only install what you need
-- **Community Driven**: Anyone can create and share extensions
-- **Version Controlled**: Extensions are versioned independently
+1. [介紹](#介紹)
+2. [入門](#入門)
+3. [尋找擴充](#尋找擴充)
+4. [安裝擴充](#安裝擴充)
+5. [使用擴充](#使用擴充)
+6. [管理擴充](#管理擴充)
+7. [設定](#設定)
+8. [故障排除](#故障排除)
+9. [最佳實踐](#最佳實踐)
 
 ---
 
-## Getting Started
+## 介紹
 
-### Prerequisites
+### 什麼是擴充？
 
-- Spec Kit version 0.1.0 or higher
-- A spec-kit project (directory with `.specify/` folder)
+擴充功能是模組化包，可為 Spec Kit 新增指令和功能，而不會使核心框架變得臃腫。它們允許您：
 
-### Check Your Version
+- **與外部工具整合**（Jira、Linear、GitHub 等）
+- **使用鉤子自動化**重複性任務
+- **為您的團隊客製化**工作流程
+- **跨專案共享**解決方案
+
+### 為什麼要使用擴充？
+
+- **清潔核心**：保持規格套件輕量且專注
+- **選用功能**：僅安裝您需要的功能
+- **社群驅動**：任何人都可以建立和分享擴展
+- **版本控制**：擴充是獨立版本控制的
+
+---
+
+## 入門
+
+### 先決條件
+
+- Spec Kit 版本 0.1.0 或更高版本
+- 規格套件專案（帶有 `.specify/` 資料夾的目錄）
+
+### 檢查您的版本
 
 ```bash
 specify version
 # Should show 0.1.0 or higher
 ```
 
-### First Extension
+### 第一次延期
 
-Let's install the Jira extension as an example:
+我們以安裝 Jira 擴充功能為例：
 
 ```bash
 # 1. Search for the extension
@@ -74,19 +74,19 @@ vim .specify/extensions/jira/jira-config.yml
 
 ---
 
-## Finding Extensions
+## 尋找擴充
 
-**Note**: By default, `specify extension search` uses your organization's catalog (`catalog.json`). If the catalog is empty, you won't see any results. See [Extension Catalogs](#extension-catalogs) to learn how to populate your catalog from the community reference catalog.
+**注意**：預設情況下，`specify extension search` 使用您組織的目錄 (`catalog.json`)。如果目錄為空，您將看不到任何結果。請參閱 [擴充目錄](#擴充目錄) 以了解如何從社區參考目錄填入您的目錄。
 
-### Browse All Extensions
+### 瀏覽所有擴充功能
 
 ```bash
 specify extension search
 ```
 
-Shows all extensions in your organization's catalog.
+顯示您組織目錄中的所有擴充功能。
 
-### Search by Keyword
+### 按關鍵字搜尋
 
 ```bash
 # Search for "jira"
@@ -96,7 +96,7 @@ specify extension search jira
 specify extension search issue
 ```
 
-### Filter by Tag
+### 按標籤過濾
 
 ```bash
 # Find all issue-tracking extensions
@@ -106,71 +106,71 @@ specify extension search --tag issue-tracking
 specify extension search --tag atlassian
 ```
 
-### Filter by Author
+### 按作者過濾
 
 ```bash
 # Extensions by Stats Perform
 specify extension search --author "Stats Perform"
 ```
 
-### Show Verified Only
+### 僅顯示已驗證
 
 ```bash
 # Only show verified extensions
 specify extension search --verified
 ```
 
-### Get Extension Details
+### 獲取擴展詳細信息
 
 ```bash
 # Detailed information
 specify extension info jira
 ```
 
-Shows:
+顯示：
 
-- Description
-- Requirements
-- Commands provided
-- Hooks available
-- Links (documentation, repository, changelog)
-- Installation status
+- 描述
+- 要求
+- 提供的命令
+- 可用掛鉤
+- 連結（文件、儲存庫、變更日誌）
+- 安裝狀態
 
 ---
 
-## Installing Extensions
+## 安裝擴充
 
-### Install from Catalog
+### 從目錄安裝
 
 ```bash
 # By name (from catalog)
 specify extension add jira
 ```
 
-This will:
+這將：
 
-1. Download the extension from GitHub
-2. Validate the manifest
-3. Check compatibility with your spec-kit version
-4. Install to `.specify/extensions/jira/`
-5. Register commands with your AI agent
-6. Create config template
+1. 從 GitHub 下載擴展
+2. 驗證清單
+3. 檢查與您的規格套件版本的兼容性
+4. 安裝到 `.specify/extensions/jira/`
+5. 向您的 AI 代理註冊命令
+6. 建立設定模板
 
-### Install from URL
+### 從網址安裝
 
 ```bash
 # From GitHub release
 specify extension add --from https://github.com/org/spec-kit-ext/archive/refs/tags/v1.0.0.zip
 ```
 
-### Install from Local Directory (Development)
+### 從本機目錄安裝（開發）
 
 ```bash
 # For testing or development
 specify extension add --dev /path/to/extension
 ```
 
-### Installation Output
+### 安裝輸出
 
 ```text
 ✓ Extension installed successfully!
@@ -189,11 +189,11 @@ Provided commands:
 
 ---
 
-## Using Extensions
+## 使用擴充
 
-### Using Extension Commands
+### 使用擴充命令
 
-Extensions add commands that appear in your AI agent (Claude Code):
+擴充功能加入出現在 AI 代理程式 (Claude Code) 中的指令：
 
 ```text
 # In Claude Code
@@ -203,9 +203,9 @@ Extensions add commands that appear in your AI agent (Claude Code):
 > /speckit.specstoissues
 ```
 
-### Extension Configuration
+### 擴充設定
 
-Most extensions require configuration:
+大多數擴充功能需要設定：
 
 ```bash
 # 1. Find the config file
@@ -222,11 +222,11 @@ vim .specify/extensions/jira/jira-config.yml
 # (Commands will now work with your config)
 ```
 
-### Extension Hooks
+### 延長鉤
 
-Some extensions provide hooks that execute after core commands:
+一些擴充功能提供了在核心命令之後執行的鉤子：
 
-**Example**: Jira extension hooks into `/speckit.tasks`
+**範例**：Jira 擴充掛鉤到 `/speckit.tasks`
 
 ```text
 # Run core command
@@ -243,19 +243,19 @@ Prompt: Create Jira issues from tasks?
 To execute: `/speckit.jira.specstoissues`
 ```
 
-You can then choose to run the hook or skip it.
+然後您可以選擇執行該掛鉤或跳過它。
 
 ---
 
-## Managing Extensions
+## 管理擴充
 
-### List Installed Extensions
+### 列出已安裝的擴充
 
 ```bash
 specify extension list
 ```
 
-Output:
+輸出：
 
 ```text
 Installed Extensions:
@@ -265,7 +265,7 @@ Installed Extensions:
      Commands: 3 | Hooks: 1 | Status: Enabled
 ```
 
-### Update Extensions
+### 更新擴充
 
 ```bash
 # Check for updates (all extensions)
@@ -275,7 +275,7 @@ specify extension update
 specify extension update jira
 ```
 
-Output:
+輸出：
 
 ```text
 🔄 Checking for updates...
@@ -287,7 +287,7 @@ Updates available:
 Update these extensions? [y/N]:
 ```
 
-### Disable Extension Temporarily
+### 暫時禁用擴充
 
 ```bash
 # Disable without removing
@@ -299,7 +299,7 @@ Commands will no longer be available. Hooks will not execute.
 To re-enable: specify extension enable jira
 ```
 
-### Re-enable Extension
+### 重新啟用擴充
 
 ```bash
 specify extension enable jira
@@ -307,7 +307,7 @@ specify extension enable jira
 ✓ Extension 'jira' enabled
 ```
 
-### Remove Extension
+### 刪除擴充
 
 ```bash
 # Remove extension (with confirmation)
@@ -322,11 +322,11 @@ specify extension remove jira --force
 
 ---
 
-## Configuration
+## 設定
 
-### Configuration Files
+### 設定檔
 
-Extensions can have multiple configuration files:
+擴充可以有多個設定檔：
 
 ```text
 .specify/extensions/jira/
@@ -335,18 +335,18 @@ Extensions can have multiple configuration files:
 └── jira-config.template.yml  # Template (reference)
 ```
 
-### Configuration Layers
+### 設定層
 
-Configuration is merged in this order (highest priority last):
+設定按以下順序合併（最高優先級最後）：
 
-1. **Extension defaults** (from `extension.yml`)
-2. **Project config** (`jira-config.yml`)
-3. **Local overrides** (`jira-config.local.yml`)
-4. **Environment variables** (`SPECKIT_JIRA_*`)
+1. **擴展預設值**（來自 `extension.yml`）
+2. **專案設定** (`jira-config.yml`)
+3. **本地覆蓋** (`jira-config.local.yml`)
+4. **環境變數** (`SPECKIT_JIRA_*`)
 
-### Example: Jira Configuration
+### 範例：Jira 設定
 
-**Project config** (`.specify/extensions/jira/jira-config.yml`):
+**專案設定** (`.specify/extensions/jira/jira-config.yml`):
 
 ```yaml
 project:
@@ -357,24 +357,24 @@ defaults:
     labels: ["spec-driven"]
 ```
 
-**Local override** (`.specify/extensions/jira/jira-config.local.yml`):
+**本地覆蓋** (`.specify/extensions/jira/jira-config.local.yml`)：
 
 ```yaml
 project:
   key: "MYTEST"  # Override for local development
 ```
 
-**Environment variable**:
+**環境變數**：
 
 ```bash
 export SPECKIT_JIRA_PROJECT_KEY="DEVTEST"
 ```
 
-Final resolved config uses `DEVTEST` from environment variable.
+最終解析的設定使用環境變數中的 `DEVTEST`。
 
-### Project-Wide Extension Settings
+### 專案範圍的擴展設置
 
-File: `.specify/extensions.yml`
+文件：`.specify/extensions.yml`
 
 ```yaml
 # Extensions installed in this project
@@ -396,16 +396,16 @@ hooks:
       prompt: "Create Jira issues from tasks?"
 ```
 
-### Core Environment Variables
+### 核心環境變數
 
-In addition to extension-specific environment variables (`SPECKIT_{EXT_ID}_*`), spec-kit supports core environment variables:
+除了特定於擴展的環境變數 (`SPECKIT_{EXT_ID}_*`) 之外，spec-kit 還支援核心環境變數：
 
-| Variable | Description | Default |
+| 多變的 | 描述 | 預設 |
 |----------|-------------|---------|
-| `SPECKIT_CATALOG_URL`       | Override the extension catalog URL | GitHub-hosted catalog |
-| `GH_TOKEN` / `GITHUB_TOKEN` | GitHub API token for downloads     | None                  |
+| `SPECKIT_CATALOG_URL`       | 覆蓋擴充目錄 URL | GitHub 託管目錄 |
+| `GH_TOKEN` / `GITHUB_TOKEN` | GitHub API 用於下載的令牌     | 沒有任何                  |
 
-#### Example: Using a custom catalog for testing
+#### 範例：使用自訂目錄進行測試
 
 ```bash
 # Point to a local or alternative catalog
@@ -417,26 +417,26 @@ export SPECKIT_CATALOG_URL="https://example.com/staging/catalog.json"
 
 ---
 
-## Extension Catalogs
+## 擴充目錄
 
-For information about how Spec Kit's dual-catalog system works (`catalog.json` vs `catalog.community.json`), see the main [Extensions README](README.md#extension-catalogs).
+有關 Spec Kit 的雙目錄系統如何運作的資訊（`catalog.json` 與 `catalog.community.json`），請參閱主要 [擴充 README](README.md#extension-catalogs)。
 
-## Organization Catalog Customization
+## 組織目錄定制
 
-### Why Customize Your Catalog
+### 為什麼要自訂您的目錄
 
-Organizations customize their `catalog.json` to:
+組織將其 `catalog.json` 定制為：
 
-- **Control available extensions** - Curate which extensions your team can install
-- **Host private extensions** - Internal tools that shouldn't be public
-- **Customize for compliance** - Meet security/audit requirements
-- **Support air-gapped environments** - Work without internet access
+- **控制可用擴展** - 策劃您的團隊可以安裝哪些擴展
+- **託管私有擴充** - 不應公開的內部工具
+- **定制合規性** - 滿足安全/audit 要求
+- **支援氣隙環境** - 無需網路存取即可運作
 
-### Setting Up a Custom Catalog
+### 設定自訂目錄
 
-#### 1. Create Your Catalog File
+#### 1. 建立您的目錄文件
 
-Create a `catalog.json` file with your extensions:
+使用您的副檔名建立 `catalog.json` 檔案：
 
 ```json
 {
@@ -488,37 +488,37 @@ Create a `catalog.json` file with your extensions:
 }
 ```
 
-#### 2. Host the Catalog
+#### 2. 託管目錄
 
-Options for hosting your catalog:
+託管目錄的選項：
 
-| Method | URL Example | Use Case |
+| 方法 | 網址範例 | 使用案例 |
 | ------ | ----------- | -------- |
-| GitHub Pages | `https://your-org.github.io/spec-kit-catalog/catalog.json` | Public or org-visible |
-| Internal web server | `https://internal.company.com/spec-kit/catalog.json` | Corporate network |
-| S3/Cloud storage | `https://s3.amazonaws.com/your-bucket/catalog.json` | Cloud-hosted teams |
-| Local file server | `http://localhost:8000/catalog.json` | Development/testing |
+| GitHub 頁 | `https://your-org.github.io/spec-kit-catalog/catalog.json` | 公共或組織可見 |
+| 內部網路伺服器 | `https://internal.company.com/spec-kit/catalog.json` | 公司網路 |
+| S3/Cloud 存儲 | `https://s3.amazonaws.com/your-bucket/catalog.json` | 雲端託管團隊 |
+| 本地檔案伺服器 | `http://localhost:8000/catalog.json` | 發展/testing |
 
-**Security requirement**: URLs must use HTTPS (except `localhost` for testing).
+**安全性需求**：URL 必須使用 HTTPS（測試用的 `localhost` 除外）。
 
-#### 3. Configure Your Environment
+#### 3. 設定您的環境
 
-##### Option A: Environment variable (recommended for CI/CD)
+##### 選項 A：環境變數（建議用於 CI_/CD）
 
 ```bash
 # In ~/.bashrc, ~/.zshrc, or CI pipeline
 export SPECKIT_CATALOG_URL="https://your-org.com/spec-kit/catalog.json"
 ```
 
-##### Option B: Per-project configuration
+##### 選項 B：每個專案設定
 
-Create `.env` or set in your shell before running spec-kit commands:
+在執行 spec-kit 指令之前建立 `.env` 或在 shell 中設定：
 
 ```bash
 SPECKIT_CATALOG_URL="https://your-org.com/spec-kit/catalog.json" specify extension search
 ```
 
-#### 4. Verify Configuration
+#### 4. 驗證設定
 
 ```bash
 # Search should now show your catalog's extensions
@@ -528,32 +528,32 @@ specify extension search
 specify extension add jira
 ```
 
-### Catalog JSON Schema
+### 目錄 JSON 架構
 
-Required fields for each extension entry:
+每個擴充條目的必填欄位：
 
-| Field | Type | Required | Description |
+| 場地 | 類型 | 必需的 | 描述 |
 | ----- | ---- | -------- | ----------- |
-| `name` | string | Yes | Human-readable name |
-| `id` | string | Yes | Unique identifier (lowercase, hyphens) |
-| `version` | string | Yes | Semantic version (X.Y.Z) |
-| `download_url` | string | Yes | URL to ZIP archive |
-| `repository` | string | Yes | Source code URL |
-| `description` | string | No | Brief description |
-| `author` | string | No | Author/organization |
-| `license` | string | No | SPDX license identifier |
-| `requires.speckit_version` | string | No | Version constraint |
-| `requires.tools` | array | No | Required external tools |
-| `provides.commands` | number | No | Number of commands |
-| `provides.hooks` | number | No | Number of hooks |
-| `tags` | array | No | Search tags |
-| `verified` | boolean | No | Verification status |
+| `name` | 細繩 | 是的 | 人類可讀的名稱 |
+| `id` | 細繩 | 是的 | 唯一識別符（小寫、連字符） |
+| `version` | 細繩 | 是的 | 語意版本 (X.Y.Z) |
+| `download_url` | 細繩 | 是的 | ZIP 存檔的 URL |
+| `repository` | 細繩 | 是的 | 原始碼網址 |
+| `description` | 細繩 | 不 | 簡要說明 |
+| `author` | 細繩 | 不 | 作者/organization |
+| `license` | 細繩 | 不 | SPDX 許可證標識符 |
+| `requires.speckit_version` | 細繩 | 不 | 版本限制 |
+| `requires.tools` | 大批 | 不 | 所需的外部工具 |
+| `provides.commands` | 數位 | 不 | 命令數量 |
+| `provides.hooks` | 數位 | 不 | 掛鉤數量 |
+| `tags` | 大批 | 不 | 搜尋標籤 |
+| `verified` | 布林值 | 不 | 驗證狀態 |
 
-### Use Cases
+### 使用案例
 
-#### Private/Internal Extensions
+#### 私人/Internal 擴展
 
-Host proprietary extensions that integrate with internal systems:
+託管與內部系統整合的專有擴充：
 
 ```json
 {
@@ -565,9 +565,9 @@ Host proprietary extensions that integrate with internal systems:
 }
 ```
 
-#### Curated Team Catalog
+#### 策劃團隊目錄
 
-Limit which extensions your team can install:
+限制您的團隊可以安裝哪些擴充功能：
 
 ```json
 {
@@ -578,15 +578,15 @@ Limit which extensions your team can install:
 }
 ```
 
-Only `jira` and `github` will appear in `specify extension search`.
+只有 `jira` 和 `github` 會出現在 `specify extension search` 。
 
-#### Air-Gapped Environments
+#### 氣隙環境
 
-For networks without internet access:
+對於無法上網的網路：
 
-1. Download extension ZIPs to internal file server
-2. Create catalog pointing to internal URLs
-3. Host catalog on internal web server
+1. 將擴充 ZIP 下載到內部檔案伺服器
+2. 建立指向內部 URL 的目錄
+3. 內部 Web 伺服器上的主機目錄
 
 ```json
 {
@@ -596,9 +596,9 @@ For networks without internet access:
 }
 ```
 
-#### Development/Testing
+#### 發展/Testing
 
-Test new extensions before publishing:
+在發布之前測試新擴充功能：
 
 ```bash
 # Start local server
@@ -611,9 +611,9 @@ export SPECKIT_CATALOG_URL="http://localhost:8000/catalog.json"
 specify extension add my-new-extension
 ```
 
-### Combining with Direct Installation
+### 與直接安裝結合
 
-You can still install extensions not in your catalog using `--from`:
+您仍然可以使用 `--from` 安裝不在目錄中的擴充功能：
 
 ```bash
 # From catalog
@@ -626,113 +626,113 @@ specify extension add --from https://github.com/someone/spec-kit-ext/archive/v1.
 specify extension add --dev /path/to/extension
 ```
 
-**Note**: Direct URL installation shows a security warning since the extension isn't from your configured catalog.
+**注意**：直接 URL 安裝會顯示安全性警告，因為擴充功能不是來自您設定的目錄。
 
 ---
 
-## Troubleshooting
+## 故障排除
 
-### Extension Not Found
+### 未找到擴充程式
 
-**Error**: `Extension 'jira' not found in catalog
+**錯誤**：`在目錄中找不到副檔名“jira”
 
-**Solutions**:
+**解決方案**：
 
-1. Check spelling: `specify extension search jira`
-2. Refresh catalog: `specify extension search --help`
-3. Check internet connection
-4. Extension may not be published yet
+1. 檢查拼字：`specify extension search jira`
+2. 刷新目錄：`specify extension search --help`
+3. 檢查網路連線
+4. 擴展可能尚未發布
 
-### Configuration Not Found
+### 未找到設定
 
-**Error**: `Jira configuration not found`
+**錯誤**：`Jira configuration not found`
 
-**Solutions**:
+**解決方案**：
 
-1. Check if extension is installed: `specify extension list`
-2. Create config from template:
+1. 檢查是否安裝了擴充功能：`specify extension list`
+2. 從範本建立設定：
 
    ```bash
    cp .specify/extensions/jira/jira-config.template.yml \
       .specify/extensions/jira/jira-config.yml
    ```
 
-3. Reinstall extension: `specify extension remove jira && specify extension add jira`
+3. 重新安裝擴充：`specify extension remove jira && specify extension add jira`
 
-### Command Not Available
+### 命令不可用
 
-**Issue**: Extension command not appearing in AI agent
+**問題**：擴充指令未出現在 AI 代理程式中
 
-**Solutions**:
+**解決方案**：
 
-1. Check extension is enabled: `specify extension list`
-2. Restart AI agent (Claude Code)
-3. Check command file exists:
+1. 檢查擴充功能是否已啟用：`specify extension list`
+2. 重新啟用 AI 代理程式 (Claude Code)
+3. 檢查命令檔案是否存在：
 
    ```bash
    ls .claude/commands/speckit.jira.*.md
    ```
 
-4. Reinstall extension
+4. 重新安裝擴充功能
 
-### Incompatible Version
+### 不相容版本
 
-**Error**: `Extension requires spec-kit >=0.2.0, but you have 0.1.0`
+**錯誤**：`Extension requires spec-kit >=0.2.0, but you have 0.1.0`
 
-**Solutions**:
+**解決方案**：
 
-1. Upgrade spec-kit:
+1. 升級規格套件：
 
    ```bash
    uv tool upgrade specify-cli
    ```
 
-2. Install older version of extension:
+2. 安裝舊版的擴充功能：
 
    ```bash
    specify extension add --from https://github.com/org/ext/archive/v1.0.0.zip
    ```
 
-### MCP Tool Not Available
+### MCP 工具不可用
 
-**Error**: `Tool 'jira-mcp-server/epic_create' not found`
+**錯誤**：`Tool 'jira-mcp-server/epic_create' not found`
 
-**Solutions**:
+**解決方案**：
 
-1. Check MCP server is installed
-2. Check AI agent MCP configuration
-3. Restart AI agent
-4. Check extension requirements: `specify extension info jira`
+1. 檢查MCP伺服器是否安裝
+2. 檢查 AI 代理 MCP 設定
+3. 重新啟用 AI 代理
+4. 檢查擴充要求：`specify extension info jira`
 
-### Permission Denied
+### 沒有權限
 
-**Error**: `Permission denied` when accessing Jira
+**錯誤**：存取 Jira 時出現 `Permission denied`
 
-**Solutions**:
+**解決方案**：
 
-1. Check Jira credentials in MCP server config
-2. Verify project permissions in Jira
-3. Test MCP server connection independently
+1. 檢查 MCP 伺服器設定中的 Jira 憑證
+2. 驗證 Jira 中的專案權限
+3. 獨立測試MCP伺服器連接
 
 ---
 
-## Best Practices
+## 最佳實踐
 
-### 1. Version Control
+### 1.版本控制
 
-**Do commit**:
+**執行承諾**：
 
-- `.specify/extensions.yml` (project extension config)
-- `.specify/extensions/*/jira-config.yml` (project config)
+- `.specify/extensions.yml`（專案擴充設定）
+- `.specify/extensions/*/jira-config.yml`（專案設定）
 
-**Don't commit**:
+**不要承諾**：
 
-- `.specify/extensions/.cache/` (catalog cache)
-- `.specify/extensions/.backup/` (config backups)
-- `.specify/extensions/*/*.local.yml` (local overrides)
-- `.specify/extensions/.registry` (installation state)
+- `.specify/extensions/.cache/`（目錄快取）
+- `.specify/extensions/.backup/`（設定備份）
+- `.specify/extensions/*/*.local.yml`（本地覆蓋）
+- `.specify/extensions/.registry`（安裝狀態）
 
-Add to `.gitignore`:
+加到 `.gitignore`：
 
 ```gitignore
 .specify/extensions/.cache/
@@ -741,16 +741,16 @@ Add to `.gitignore`:
 .specify/extensions/.registry
 ```
 
-### 2. Team Workflows
+### 2. 團隊工作流程
 
-**For teams**:
+**對於團隊**：
 
-1. Agree on which extensions to use
-2. Commit extension configuration
-3. Document extension usage in README
-4. Keep extensions updated together
+1. 就使用哪些擴充功能達成一致
+2. 提交擴充設定
+3. README 中的文件副檔名使用情況
+4. 保持擴充一起更新
 
-**Example README section**:
+**範例 README 部分**：
 
 ```markdown
 ## Extensions
@@ -763,9 +763,9 @@ This project uses:
 To install: `specify extension add jira`
 ```
 
-### 3. Local Development
+### 3. 地方發展
 
-Use local config for development:
+使用本地設定進行開發：
 
 ```yaml
 # .specify/extensions/jira/jira-config.local.yml
@@ -778,9 +778,9 @@ defaults:
       customfield_10002: 1  # Lower story points for testing
 ```
 
-### 4. Environment-Specific Config
+### 4. 環境特定設定
 
-Use environment variables for CI/CD:
+使用 CI/CD: 的環境變數
 
 ```bash
 # .github/workflows/deploy.yml
@@ -791,16 +791,16 @@ env:
   run: specify extension add jira && ...
 ```
 
-### 5. Extension Updates
+### 5. 擴充更新
 
-**Check for updates regularly**:
+**定期檢查更新**：
 
 ```bash
 # Weekly or before major releases
 specify extension update
 ```
 
-**Pin versions for stability**:
+**穩定的引腳版本**：
 
 ```yaml
 # .specify/extensions.yml
@@ -809,17 +809,17 @@ installed:
     version: "1.0.0"  # Pin to specific version
 ```
 
-### 6. Minimal Extensions
+### 6. 最小擴展
 
-Only install extensions you actively use:
+僅安裝您經常使用的擴充功能：
 
-- Reduces complexity
-- Faster command loading
-- Less configuration
+- 降低複雜性
+- 更快的命令加載
+- 設定少
 
-### 7. Documentation
+### 7. 文檔
 
-Document extension usage in your project:
+記錄專案中擴充的使用：
 
 ```markdown
 # PROJECT.md
@@ -834,58 +834,58 @@ After creating tasks, sync to Jira:
 
 ---
 
-## FAQ
+## 常問問題
 
-### Q: Can I use multiple extensions at once?
+### Q：我可以同時使用多個擴充功能嗎？
 
-**A**: Yes! Extensions are designed to work together. Install as many as you need.
+**答**：是的！擴展旨在協同工作。根據需要安裝多個。
 
-### Q: Do extensions slow down spec-kit?
+### Q：擴充會減慢規格套件的速度嗎？
 
-**A**: No. Extensions are loaded on-demand and only when their commands are used.
+**A**：不會。擴充功能是按需載入的，並且僅在使用其命令時載入。
 
-### Q: Can I create private extensions?
+### Q：我可以建立私有擴充嗎？
 
-**A**: Yes. Install with `--dev` or `--from` and keep private. Public catalog submission is optional.
+**答**：是的。使用 `--dev` 或 `--from` 安裝並保持私密。公共目錄提交是可選的。
 
-### Q: How do I know if an extension is safe?
+### Q：我如何知道擴充是否安全？
 
-**A**: Look for the ✓ Verified badge. Verified extensions are reviewed by maintainers. Always review extension code before installing.
+**A**：尋找 ✓ 已驗證徽章。已驗證的擴充由維護人員審核。安裝前請務必檢查擴充程式碼。
 
-### Q: Can extensions modify spec-kit core?
+### Q：擴充可以修改規格套件核心嗎？
 
-**A**: No. Extensions can only add commands and hooks. They cannot modify core functionality.
+**A**：不行。擴充只能添加命令和掛鉤。他們無法修改核心功能。
 
-### Q: What happens if two extensions have the same command name?
+### Q：如果兩個擴充功能具有相同的命令名稱會怎麼樣？
 
-**A**: Extensions use namespaced commands (`speckit.{extension}.{command}`), so conflicts are very rare. The extension system will warn you if conflicts occur.
+**A**：擴充使用命名空間指令 (`speckit.{extension}.{command}`)，因此衝突非常罕見。如果發生衝突，分機系統會警告您。
 
-### Q: Can I contribute to existing extensions?
+### Q：我可以為現有擴展做出貢獻嗎？
 
-**A**: Yes! Most extensions are open source. Check the repository link in `specify extension info {extension}`.
+**答**：是的！大多數擴充都是開源的。檢查 `specify extension info {extension}` 中的儲存庫連結。
 
-### Q: How do I report extension bugs?
+### Q：如何報告擴充錯誤？
 
-**A**: Go to the extension's repository (shown in `specify extension info`) and create an issue.
+**A**：前往擴充功能的儲存庫（如 `specify extension info` 所示）並建立問題。
 
-### Q: Can extensions work offline?
+### Q：擴充功能可以離線使用嗎？
 
-**A**: Once installed, extensions work offline. However, some extensions may require internet for their functionality (e.g., Jira requires Jira API access).
+**A**：安裝後，擴充功能可以離線工作。但是，某些擴充功能可能需要網路才能實現其功能（例如，Jira 需要 Jira API 存取權限）。
 
-### Q: How do I backup my extension configuration?
+### Q：如何備份我的擴充設定？
 
-**A**: Extension configs are in `.specify/extensions/{extension}/`. Back up this directory or commit configs to git.
-
----
-
-## Support
-
-- **Extension Issues**: Report to extension repository (see `specify extension info`)
-- **Spec Kit Issues**: <https://github.com/statsperform/spec-kit/issues>
-- **Extension Catalog**: <https://github.com/statsperform/spec-kit/tree/main/extensions>
-- **Documentation**: See EXTENSION-DEVELOPMENT-GUIDE.md and EXTENSION-PUBLISHING-GUIDE.md
+**A**：擴充設定位於 `.specify/extensions/{extension}/` 中。備份此目錄或將設定提交至 git。
 
 ---
 
-*Last Updated: 2026-01-28*
-*Spec Kit Version: 0.1.0*
+## 支援
+
+- **擴充問題**：向擴充儲存庫報告（請參閱 `specify extension info`）
+- **Spec Kit 問題**： <https://github.com/statsperform/spec-kit/issues>
+- **擴充目錄**： <https://github.com/statsperform/spec-kit/tree/main/extensions>
+- **文件**：請參閱 EXTENSION-DEVELOPMENT-GUIDE.md 和 EXTENSION-PUBLISHING-GUIDE.md
+
+---
+
+*最後更新：2026-01-28*
+*Spec Kit 版本：0.1.0*

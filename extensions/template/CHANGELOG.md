@@ -1,39 +1,39 @@
-# Changelog
+# 變更日誌
 
-All notable changes to this extension will be documented in this file.
+此擴充功能的所有顯著變更都將記錄在此文件中。
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to  [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+格式基於[保留變更日誌](https://keepachangelog.com/en/1.0.0/)，
+且專案遵循 [語意版本控制](https://semver.org/spec/v2.0.0.html)。
 
-## [Unreleased]
+## [未發布]
 
-### Planned
+### 計劃
 
-- Feature ideas for future versions
-- Enhancements
-- Bug fixes
+- 未來版本的功能想法
+- 增強功能
+- 錯誤修復
 
-## [1.0.0] - YYYY-MM-DD
+## [1.0.0] - 年-月-日
 
-### Added
+### 額外
 
-- Initial release of extension
-- Command: `/speckit.my-extension.example` - Example command functionality
-- Configuration system with template
-- Documentation and examples
+- 擴充的初始版本
+- 指令：`/speckit.my-extension.example` - 指令功能範例
+- 附模板的設定系統
+- 文件和範例
 
-### Features
+### 特徵
 
-- Feature 1 description
-- Feature 2 description
-- Feature 3 description
+- 特徵1描述
+- 特徵2說明
+- 特徵3說明
 
-### Requirements
+### 要求
 
-- Spec Kit: >=0.1.0
-- External dependencies (if any)
+- Spec Kit：>=0.1.0
+- 外部依賴（如果有）
 
 ---
 
-[Unreleased]: https://github.com/your-org/spec-kit-my-extension/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/your-org/spec-kit-my-extension/releases/tag/v1.0.0
+[未發布]：https://github.com/your-org/spec-kit-my-extension/compare/v1.0.0...HEAD
+[1.0.0]：https://github.com/your-org/spec-kit-my-extension/releases/tag/v1.0.0

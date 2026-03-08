@@ -1,33 +1,33 @@
 ---
-description: Convert existing tasks into actionable, dependency-ordered GitHub issues for the feature based on available design artifacts.
-tools: ['github/github-mcp-server/issue_write']
-scripts:
-  sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
-  ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
+描述：根據可用的設計工件，將現有任務轉換為可操作的、按依賴性排序的 GitHub 功能問題。
+工具：['github/github-mcp-server/issue_write']
+腳本：
+  sh：腳本/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+  ps：腳本/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
 ---
 
-## User Input
+## 使用者輸入
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+在繼續之前，您**必須**考慮使用者輸入（如果不為空）。
 
-## Outline
+## 大綱
 
-1. Run `{SCRIPT}` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
-1. From the executed script, extract the path to **tasks**.
-1. Get the Git remote by running:
+1. 從儲存庫根目錄執行 `{SCRIPT}` 並解析 FEATURE_DIR 和 AVAILABLE_DOCS 清單。所有路徑都必須是絕對路徑。對於像「I'm Groot」這樣的參數中的單引號，請使用轉義語法：例如'I'\''m Groot'（或如果可能的話使用雙引號：「I'm Groot」）。
+1. 從執行的腳本中，提取 **tasks** 的路徑。
+1. 透過執行以下命令來取得 Git 遠端：
 
 ```bash
 git config --get remote.origin.url
 ```
 
-> [!CAUTION]
-> ONLY PROCEED TO NEXT STEPS IF THE REMOTE IS A GITHUB URL
+> [！警告]
+> 只有當遙控器是 GITHUB URL 時才繼續執行後續步驟
 
-1. For each task in the list, use the GitHub MCP server to create a new issue in the repository that is representative of the Git remote.
+1. 對於清單中的每個任務，使用 GitHub MCP 伺服器在代表 Git 遠端的儲存庫中建立一個新問題。
 
-> [!CAUTION]
-> UNDER NO CIRCUMSTANCES EVER CREATE ISSUES IN REPOSITORIES THAT DO NOT MATCH THE REMOTE URL
+> [！警告]
+> 在任何情況下都不會在與遠端 URL 不符的儲存庫中產生問題

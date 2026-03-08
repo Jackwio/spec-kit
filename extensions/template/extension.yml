@@ -5,16 +5,16 @@ extension:
   id: "my-extension"
 
   # CUSTOMIZE: Human-readable name for your extension
-  name: "My Extension"
+  name: "我的擴展"
 
   # CUSTOMIZE: Update version when releasing (semantic versioning: X.Y.Z)
   version: "1.0.0"
 
   # CUSTOMIZE: Brief description (under 200 characters)
-  description: "Brief description of what your extension does"
+  description: "簡要描述您的擴充功能的用途"
 
   # CUSTOMIZE: Your name or organization name
-  author: "Your Name"
+  author: "你的名字"
 
   # CUSTOMIZE: GitHub repository URL (create before publishing)
   repository: "https://github.com/your-org/spec-kit-my-extension"
@@ -46,7 +46,7 @@ provides:
     # Pattern: speckit.{extension-id}.{command-name}
     - name: "speckit.my-extension.example"
       file: "commands/example.md"
-      description: "Example command that demonstrates functionality"
+      description: "演示功能的範例命令"
       # Optional: Add aliases for shorter command names
       aliases: ["speckit.example"]
 
@@ -59,7 +59,7 @@ provides:
   config:
     - name: "my-extension-config.yml"
       template: "config-template.yml"
-      description: "Extension configuration"
+      description: "擴充設定"
       required: true # Set to false if config is optional
 
 # CUSTOMIZE: Define hooks (optional)
@@ -69,8 +69,8 @@ hooks:
   after_tasks:
     command: "speckit.my-extension.example"
     optional: true # User will be prompted
-    prompt: "Run example command?"
-    description: "Demonstrates hook functionality"
+    prompt: "執行範例命令？"
+    description: "演示鉤子功能"
     condition: null # Future: conditional execution
 
   # ADD MORE HOOKS: Copy this block for other events
@@ -82,8 +82,8 @@ hooks:
 # CUSTOMIZE: Add relevant tags (2-5 recommended)
 # Used for discovery in catalog
 tags:
-  - "example"
-  - "template"
+  - “例子”
+  - “模板”
   # ADD MORE: "category", "tool-name", etc.
 
 # CUSTOMIZE: Default configuration values (optional)

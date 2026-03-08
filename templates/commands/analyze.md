@@ -1,187 +1,187 @@
 ---
-description: Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation.
-scripts:
-  sh: scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks
-  ps: scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
+描述：任務產生後跨spec.md、plan.md和tasks.md執行非破壞性的跨工件一致性和品質分析。
+腳本：
+  sh：腳本/bash/check-prerequisites.sh --json --require-tasks --include-tasks
+  ps：腳本/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
 ---
 
-## User Input
+## 使用者輸入
 
 ```text
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+在繼續之前，您**必須**考慮使用者輸入（如果不為空）。
 
-## Goal
+## 目標
 
-Identify inconsistencies, duplications, ambiguities, and underspecified items across the three core artifacts (`spec.md`, `plan.md`, `tasks.md`) before implementation. This command MUST run only after `/speckit.tasks` has successfully produced a complete `tasks.md`.
+在實作之前識別三個核心工件（`spec.md`、`plan.md`、`tasks.md`）中的不一致、重複、歧義和未指定的專案。此指令必須僅在 `/speckit.tasks` 成功產生完整的 `tasks.md` 之後執行。
 
-## Operating Constraints
+## 操作限制
 
-**STRICTLY READ-ONLY**: Do **not** modify any files. Output a structured analysis report. Offer an optional remediation plan (user must explicitly approve before any follow-up editing commands would be invoked manually).
+**嚴格只讀**：不要**修改任何檔案。輸出結構化分析報告。提供可選的修復計劃（使用者必須明確批准才能手動呼叫任何後續編輯命令）。
 
-**Constitution Authority**: The project constitution (`/memory/constitution.md`) is **non-negotiable** within this analysis scope. Constitution conflicts are automatically CRITICAL and require adjustment of the spec, plan, or tasks—not dilution, reinterpretation, or silent ignoring of the principle. If a principle itself needs to change, that must occur in a separate, explicit constitution update outside `/speckit.analyze`.
+**憲法權威**：專案憲法（`/memory/constitution.md`）在此分析範圍內**不可協商**。憲法衝突自然是至關重要的，需要調整規範、計劃或任務，而不是淡化、重新解釋或沉默地忽視原則。如果原則本身需要改變，則必須在 `/speckit.analyze` 之外進行單獨、明確的憲法更新。
 
-## Execution Steps
+## 執行步驟
 
-### 1. Initialize Analysis Context
+### 1. 初始化分析上下文
 
-Run `{SCRIPT}` once from repo root and parse JSON for FEATURE_DIR and AVAILABLE_DOCS. Derive absolute paths:
+從儲存庫根目錄執行 `{SCRIPT}` 一次，並解析 JSON 以取得 FEATURE_DIR 和 AVAILABLE_DOCS。匯出絕對路徑：
 
-- SPEC = FEATURE_DIR/spec.md
-- PLAN = FEATURE_DIR/plan.md
-- TASKS = FEATURE_DIR/tasks.md
+- 規格 = FEATURE_DIR/spec.md
+- 計劃 = FEATURE_DIR/plan.md
+- 任務 = FEATURE_DIR/tasks.md
 
-Abort with an error message if any required file is missing (instruct the user to run missing prerequisite command).
-For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+如果缺少任何必需的文件，則中止並顯示錯誤訊息（指示使用者執行缺少的先決條件命令）。
+對於像「I'm Groot」這樣的參數中的單引號，請使用轉義語法：例如'I'\''m Groot'（或如果可能的話使用雙引號：「I'm Groot」）。
 
-### 2. Load Artifacts (Progressive Disclosure)
+### 2.載入工件（漸進式揭露）
 
-Load only the minimal necessary context from each artifact:
+僅從每個工件加載最少的必要上下文：
 
-**From spec.md:**
+**來自spec.md：**
 
-- Overview/Context
-- Functional Requirements
-- Non-Functional Requirements
-- User Stories
-- Edge Cases (if present)
+- 概述/Context
+- 功能要求
+- 非功能性需求
+- 使用者故事
+- 邊緣情況（如果存在）
 
-**From plan.md:**
+**來自計劃.md：**
 
-- Architecture/stack choices
-- Data Model references
-- Phases
-- Technical constraints
+- 架構/stack 選擇
+- 資料模型參考
+- 階段
+- 技術限制
 
-**From tasks.md:**
+**來自tasks.md：**
 
-- Task IDs
-- Descriptions
-- Phase grouping
-- Parallel markers [P]
-- Referenced file paths
+- 任務 ID
+- 描述
+- 相分組
+- 平行標記 [P]
+- 引用的檔案路徑
 
-**From constitution:**
+**來自憲法：**
 
-- Load `/memory/constitution.md` for principle validation
+- 載入 `/memory/constitution.md` 進行原理驗證
 
-### 3. Build Semantic Models
+### 3. 建構語意模型
 
-Create internal representations (do not include raw artifacts in output):
+建立內部表示（不包含輸出中的原始工件）：
 
-- **Requirements inventory**: Each functional + non-functional requirement with a stable key (derive slug based on imperative phrase; e.g., "User can upload file" → `user-can-upload-file`)
-- **User story/action inventory**: Discrete user actions with acceptance criteria
-- **Task coverage mapping**: Map each task to one or more requirements or stories (inference by keyword / explicit reference patterns like IDs or key phrases)
-- **Constitution rule set**: Extract principle names and MUST/SHOULD normative statements
+- **需求清單**：每個功能性+非功能性需求都有一個穩定的密鑰（根據命令式短語派生子句；例如，「使用者可以上傳檔案」→ `user-can-upload-file`）
+- **使用者故事/action 函式庫存**：具有接受標準的離散使用者操作
+- **任務覆蓋範圍映射**：將每項任務映射到一個或多個需求或故事（透過關鍵字/明確參考模式（如 ID 或關鍵短語）進行推斷）
+- **憲法規則集**：提取原則名稱與必須/SHOULD規範陳述
 
-### 4. Detection Passes (Token-Efficient Analysis)
+### 4. 檢測通過（令牌有效分析）
 
-Focus on high-signal findings. Limit to 50 findings total; aggregate remainder in overflow summary.
+關注高訊號發現。總共限制 50 個結果；溢出摘要中的聚合餘數。
 
-#### A. Duplication Detection
+#### A. 重複檢測
 
-- Identify near-duplicate requirements
-- Mark lower-quality phrasing for consolidation
+- 識別幾乎重複的需求
+- 標記較低品質的措詞以進行合併
 
-#### B. Ambiguity Detection
+#### B. 歧義檢測
 
-- Flag vague adjectives (fast, scalable, secure, intuitive, robust) lacking measurable criteria
-- Flag unresolved placeholders (TODO, TKTK, ???, `<placeholder>`, etc.)
+- 標記缺乏可衡量標準的模糊形容詞（快速、可擴展、安全、直覺、穩健）
+- 標記未解決的佔位符（TODO、TKTK、???、`<placeholder>`等）
 
-#### C. Underspecification
+#### C. 規格不足
 
-- Requirements with verbs but missing object or measurable outcome
-- User stories missing acceptance criteria alignment
-- Tasks referencing files or components not defined in spec/plan
+- 要求有動詞但缺少受詞或可衡量的結果
+- 使用者故事缺少驗收標準一致性
+- 引用未在 spec/plan 中定義的檔案或元件的任務
 
-#### D. Constitution Alignment
+#### D. 憲法調整
 
-- Any requirement or plan element conflicting with a MUST principle
-- Missing mandated sections or quality gates from constitution
+- 任何與「必須」原則相衝突的要求或計畫元素
+- 憲法中缺少規定的部分或品質關卡
 
-#### E. Coverage Gaps
+#### E. 覆蓋範圍差距
 
-- Requirements with zero associated tasks
-- Tasks with no mapped requirement/story
-- Non-functional requirements not reflected in tasks (e.g., performance, security)
+- 零關聯任務的需求
+- 沒有映射要求的任務/story
+- 任務中未反映的非功能性需求（例如效能、安全性）
 
-#### F. Inconsistency
+#### F. 不一致
 
-- Terminology drift (same concept named differently across files)
-- Data entities referenced in plan but absent in spec (or vice versa)
-- Task ordering contradictions (e.g., integration tasks before foundational setup tasks without dependency note)
-- Conflicting requirements (e.g., one requires Next.js while other specifies Vue)
+- 術語漂移（同一概念在不同文件中的命名不同）
+- 計劃中引用但規範中不存在的資料實體（反之亦然）
+- 任務排序矛盾（例如，整合任務在基礎設定任務之前，沒有依賴項註釋）
+- 衝突的需求（例如，一個需要 Next.js，而另一個則指定 Vue）
 
-### 5. Severity Assignment
+### 5. 嚴重性分配
 
-Use this heuristic to prioritize findings:
+使用此啟發式對發現進行優先排序：
 
-- **CRITICAL**: Violates constitution MUST, missing core spec artifact, or requirement with zero coverage that blocks baseline functionality
-- **HIGH**: Duplicate or conflicting requirement, ambiguous security/performance attribute, untestable acceptance criterion
-- **MEDIUM**: Terminology drift, missing non-functional task coverage, underspecified edge case
-- **LOW**: Style/wording improvements, minor redundancy not affecting execution order
+- **嚴重**：違反了憲法必須、缺少核心規範工件或零覆蓋率的要求，從而阻礙了基線功能
+- **高**：重複或衝突的要求、不明確的安全/performance 屬性、無法測試的驗收標準
+- **中**：術語漂移、缺少非功能性任務覆蓋、未指定邊緣情況
+- **低**：風格/wording 改進，輕微冗餘不影響執行順序
 
-### 6. Produce Compact Analysis Report
+### 6. 產生簡潔的分析報告
 
-Output a Markdown report (no file writes) with the following structure:
+輸出 Markdown 報告（無文件寫入），結構如下：
 
-## Specification Analysis Report
+## 規格分析報告
 
-| ID | Category | Severity | Location(s) | Summary | Recommendation |
+| ID | 類別 | 嚴重性 | 地點 | 概括 | 推薦 |
 |----|----------|----------|-------------|---------|----------------|
-| A1 | Duplication | HIGH | spec.md:L120-134 | Two similar requirements ... | Merge phrasing; keep clearer version |
+| A1 | 複製 | 高的 | 規格：L120-134 | 兩個相似的需求... | 合併措詞；保持更清晰的版本 |
 
-(Add one row per finding; generate stable IDs prefixed by category initial.)
+（每個發現添加一行；產生以類別首字母為前綴的穩定 ID。）
 
-**Coverage Summary Table:**
+**覆蓋範圍總表：**
 
-| Requirement Key | Has Task? | Task IDs | Notes |
+| 要求要點 | 有任務嗎？ | 任務 ID | 筆記 |
 |-----------------|-----------|----------|-------|
 
-**Constitution Alignment Issues:** (if any)
+**憲法一致性問題：**（如果有）
 
-**Unmapped Tasks:** (if any)
+**未映射的任務：**（如果有）
 
-**Metrics:**
+**指標：**
 
-- Total Requirements
-- Total Tasks
-- Coverage % (requirements with >=1 task)
-- Ambiguity Count
-- Duplication Count
-- Critical Issues Count
+- 總要求
+- 任務總數
+- 覆蓋率 %（>=1 任務的要求）
+- 歧義計數
+- 重複計數
+- 關鍵問題很重要
 
-### 7. Provide Next Actions
+### 7. 提供下一步行動
 
-At end of report, output a concise Next Actions block:
+在報告末尾，輸出一個簡潔的下一步操作塊：
 
-- If CRITICAL issues exist: Recommend resolving before `/speckit.implement`
-- If only LOW/MEDIUM: User may proceed, but provide improvement suggestions
-- Provide explicit command suggestions: e.g., "Run /speckit.specify with refinement", "Run /speckit.plan to adjust architecture", "Manually edit tasks.md to add coverage for 'performance-metrics'"
+- 如果有嚴重問題：建議在 `/speckit.implement` 之前解決
+- 如果只有 LOW/MEDIUM: 使用者可以繼續，但提供改進建議
+- 提供明確的命令建議：例如，“執行 /speckit.specify 並進行細化”、“執行 /speckit.plan 來調整架構”、“手動編輯tasks.md 以添加‘性能指標’的覆蓋範圍”
 
-### 8. Offer Remediation
+### 8. 提供補救措施
 
-Ask the user: "Would you like me to suggest concrete remediation edits for the top N issues?" (Do NOT apply them automatically.)
+詢問使用者：「您希望我針對前 N 個問題提出具體的修復編輯建議嗎？」（不要自動套用它們。）
 
-## Operating Principles
+## 工作原理
 
-### Context Efficiency
+### 情境效率
 
-- **Minimal high-signal tokens**: Focus on actionable findings, not exhaustive documentation
-- **Progressive disclosure**: Load artifacts incrementally; don't dump all content into analysis
-- **Token-efficient output**: Limit findings table to 50 rows; summarize overflow
-- **Deterministic results**: Rerunning without changes should produce consistent IDs and counts
+- **最小的高訊號標記**：專注於可操作的發現，而不是詳盡的文檔
+- **漸進式揭露**：增量載入工件；不要將所有內容轉儲到分析中
+- **令牌高效能輸出**：將結果表限制為 50 行；總結溢出
+- **確定性結果**：不進行任何更改地重新執行應該會產生一致的 ID 和計數
 
-### Analysis Guidelines
+### 分析指南
 
-- **NEVER modify files** (this is read-only analysis)
-- **NEVER hallucinate missing sections** (if absent, report them accurately)
-- **Prioritize constitution violations** (these are always CRITICAL)
-- **Use examples over exhaustive rules** (cite specific instances, not generic patterns)
-- **Report zero issues gracefully** (emit success report with coverage statistics)
+- **切勿修改文件**（這是唯讀分析）
+- **永遠不要幻覺缺失的部分**（如果缺失，請準確報告）
+- **優先考慮違反憲法的行為**（這些始終是至關重要的）
+- **使用範例而不是詳盡的規則**（引用特定實例，而不是通用模式）
+- **優雅地報告零問題**（發出包含覆蓋率統計數據的成功報告）
 
-## Context
+## 情境
 
 {ARGS}
