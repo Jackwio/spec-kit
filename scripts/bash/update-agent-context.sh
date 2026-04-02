@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-# Update agent context files with information from plan.md
+# 依 plan.md 更新各 AI 代理的上下文檔案
 #
 # This script maintains AI agent context files by parsing feature specifications 
 # and updating agent-specific configuration files with project information.
 #
-# MAIN FUNCTIONS:
+# MAIN FUNCTIONS（中文摘要）:
 # 1. Environment Validation
 #    - Verifies git repository structure and branch information
 #    - Checks for required plan.md files and templates
@@ -40,7 +40,7 @@
 
 set -e
 
-# Enable strict error handling
+# 啟用嚴格錯誤處理，避免靜默失敗
 set -u
 set -o pipefail
 
@@ -48,17 +48,17 @@ set -o pipefail
 # Configuration and Global Variables
 #==============================================================================
 
-# Get script directory and load common functions
+# 取得腳本位置並載入共用函式（路徑與分支資訊）
 SCRIPT_DIR="$(CDPATH="" cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 
-# Get all paths and variables from common functions
+# 取得專案路徑、分支、規格檔位置等
 eval $(get_feature_paths)
 
-NEW_PLAN="$IMPL_PLAN"  # Alias for compatibility with existing code
-AGENT_TYPE="${1:-}"
+NEW_PLAN="$IMPL_PLAN"  # 與舊版命名相容
+AGENT_TYPE="${1:-}"    # 指定單一代理（可選）
 
-# Agent-specific file paths  
+# 各代理的上下文檔案路徑
 CLAUDE_FILE="$REPO_ROOT/CLAUDE.md"
 GEMINI_FILE="$REPO_ROOT/GEMINI.md"
 COPILOT_FILE="$REPO_ROOT/.github/agents/copilot-instructions.md"
@@ -77,17 +77,17 @@ KIRO_FILE="$REPO_ROOT/AGENTS.md"
 AGY_FILE="$REPO_ROOT/.agent/rules/specify-rules.md"
 BOB_FILE="$REPO_ROOT/AGENTS.md"
 
-# Template file
+# 代理檔案模板（新建時使用）
 TEMPLATE_FILE="$REPO_ROOT/.specify/templates/agent-file-template.md"
 
-# Global variables for parsed plan data
+# 解析 plan.md 後的全域欄位
 NEW_LANG=""
 NEW_FRAMEWORK=""
 NEW_DB=""
 NEW_PROJECT_TYPE=""
 
 #==============================================================================
-# Utility Functions
+# 基礎輸出工具（統一訊息格式）
 #==============================================================================
 
 log_info() {
@@ -106,7 +106,7 @@ log_warning() {
     echo "WARNING: $1" >&2
 }
 
-# Cleanup function for temporary files
+# 清理暫存檔，避免留下垃圾檔案
 cleanup() {
     local exit_code=$?
     rm -f /tmp/agent_update_*_$$
@@ -114,15 +114,15 @@ cleanup() {
     exit $exit_code
 }
 
-# Set up cleanup trap
+# 設定中斷/結束時清理
 trap cleanup EXIT INT TERM
 
 #==============================================================================
-# Validation Functions
+# 環境驗證：確認分支、plan.md、模板是否存在
 #==============================================================================
 
 validate_environment() {
-    # Check if we have a current branch/feature (git or non-git)
+    # 檢查是否能取得當前功能名稱
     if [[ -z "$CURRENT_BRANCH" ]]; then
         log_error "Unable to determine current feature"
         if [[ "$HAS_GIT" == "true" ]]; then
@@ -133,7 +133,7 @@ validate_environment() {
         exit 1
     fi
     
-    # Check if plan.md exists
+    # 必須有 plan.md 才能解析資訊
     if [[ ! -f "$NEW_PLAN" ]]; then
         log_error "No plan.md found at $NEW_PLAN"
         log_info "Make sure you're working on a feature with a corresponding spec directory"
@@ -143,7 +143,7 @@ validate_environment() {
         exit 1
     fi
     
-    # Check if template exists (needed for new files)
+    # 若模板缺失，將無法建立新檔
     if [[ ! -f "$TEMPLATE_FILE" ]]; then
         log_warning "Template file not found at $TEMPLATE_FILE"
         log_warning "Creating new agent files will fail"
@@ -151,13 +151,14 @@ validate_environment() {
 }
 
 #==============================================================================
-# Plan Parsing Functions
+# 解析 plan.md 內的欄位
 #==============================================================================
 
 extract_plan_field() {
     local field_pattern="$1"
     local plan_file="$2"
     
+    # 只取第一筆符合欄位的值，且忽略 NEEDS CLARIFICATION / N/A
     grep "^\*\*${field_pattern}\*\*: " "$plan_file" 2>/dev/null | \
         head -1 | \
         sed "s|^\*\*${field_pattern}\*\*: ||" | \
@@ -186,7 +187,7 @@ parse_plan_data() {
     NEW_DB=$(extract_plan_field "Storage" "$plan_file")
     NEW_PROJECT_TYPE=$(extract_plan_field "Project Type" "$plan_file")
     
-    # Log what we found
+    # 紀錄解析到的內容（可空）
     if [[ -n "$NEW_LANG" ]]; then
         log_info "Found language: $NEW_LANG"
     else
@@ -211,11 +212,11 @@ format_technology_stack() {
     local framework="$2"
     local parts=()
     
-    # Add non-empty parts
+    # 僅加入有效欄位（排除 NEEDS CLARIFICATION / N/A）
     [[ -n "$lang" && "$lang" != "NEEDS CLARIFICATION" ]] && parts+=("$lang")
     [[ -n "$framework" && "$framework" != "NEEDS CLARIFICATION" && "$framework" != "N/A" ]] && parts+=("$framework")
     
-    # Join with proper formatting
+    # 依數量組合成「A + B」格式
     if [[ ${#parts[@]} -eq 0 ]]; then
         echo ""
     elif [[ ${#parts[@]} -eq 1 ]]; then
@@ -231,12 +232,13 @@ format_technology_stack() {
 }
 
 #==============================================================================
-# Template and Content Generation Functions
+# 模板與內容產生
 #==============================================================================
 
 get_project_structure() {
     local project_type="$1"
     
+    # 依專案型態回傳預設結構
     if [[ "$project_type" == *"web"* ]]; then
         echo "backend/\\nfrontend/\\ntests/"
     else
@@ -247,6 +249,7 @@ get_project_structure() {
 get_commands_for_language() {
     local lang="$1"
     
+    # 依語言回傳建議測試/靜態檢查指令
     case "$lang" in
         *"Python"*)
             echo "cd src && pytest && ruff check ."
@@ -265,6 +268,7 @@ get_commands_for_language() {
 
 get_language_conventions() {
     local lang="$1"
+    # 提供語言慣例說明（目前為通用模板）
     echo "$lang: Follow standard conventions"
 }
 
@@ -291,7 +295,7 @@ create_new_agent_file() {
         return 1
     fi
     
-    # Replace template placeholders
+    # 取出需要替換的模板內容
     local project_structure
     project_structure=$(get_project_structure "$NEW_PROJECT_TYPE")
     
@@ -301,13 +305,12 @@ create_new_agent_file() {
     local language_conventions
     language_conventions=$(get_language_conventions "$NEW_LANG")
     
-    # Perform substitutions with error checking using safer approach
-    # Escape special characters for sed by using a different delimiter or escaping
+    # 使用 sed 進行安全替換（先轉義特殊字元）
     local escaped_lang=$(printf '%s\n' "$NEW_LANG" | sed 's/[\[\.*^$()+{}|]/\\&/g')
     local escaped_framework=$(printf '%s\n' "$NEW_FRAMEWORK" | sed 's/[\[\.*^$()+{}|]/\\&/g')
     local escaped_branch=$(printf '%s\n' "$CURRENT_BRANCH" | sed 's/[\[\.*^$()+{}|]/\\&/g')
     
-    # Build technology stack and recent change strings conditionally
+    # 組合技術棧與近期變更文字（依有無欄位）
     local tech_stack
     if [[ -n "$escaped_lang" && -n "$escaped_framework" ]]; then
         tech_stack="- $escaped_lang + $escaped_framework ($escaped_branch)"
@@ -348,14 +351,14 @@ create_new_agent_file() {
         fi
     done
     
-    # Convert \n sequences to actual newlines
+    # 把字串中的 \n 轉成真正換行
     newline=$(printf '\n')
     sed -i.bak2 "s/\\\\n/${newline}/g" "$temp_file"
 
-    # Clean up backup files
+    # 清理備份檔
     rm -f "$temp_file.bak" "$temp_file.bak2"
 
-    # Prepend Cursor frontmatter for .mdc files so rules are auto-included
+    # Cursor .mdc 需要 frontmatter 才會自動載入
     if [[ "$target_file" == *.mdc ]]; then
         local frontmatter_file
         frontmatter_file=$(mktemp) || return 1
@@ -376,19 +379,19 @@ update_existing_agent_file() {
     
     log_info "Updating existing agent context file..."
     
-    # Use a single temporary file for atomic update
+    # 使用暫存檔進行原子更新，避免寫到一半中斷
     local temp_file
     temp_file=$(mktemp) || {
         log_error "Failed to create temporary file"
         return 1
     }
     
-    # Process the file in one pass
+    # 單次掃描文件並依區段插入內容
     local tech_stack=$(format_technology_stack "$NEW_LANG" "$NEW_FRAMEWORK")
     local new_tech_entries=()
     local new_change_entry=""
     
-    # Prepare new technology entries
+    # 準備要新增的技術項目（避免重複）
     if [[ -n "$tech_stack" ]] && ! grep -q "$tech_stack" "$target_file"; then
         new_tech_entries+=("- $tech_stack ($CURRENT_BRANCH)")
     fi
@@ -397,14 +400,14 @@ update_existing_agent_file() {
         new_tech_entries+=("- $NEW_DB ($CURRENT_BRANCH)")
     fi
     
-    # Prepare new change entry
+    # 準備 Recent Changes 新增項
     if [[ -n "$tech_stack" ]]; then
         new_change_entry="- $CURRENT_BRANCH: Added $tech_stack"
     elif [[ -n "$NEW_DB" ]] && [[ "$NEW_DB" != "N/A" ]] && [[ "$NEW_DB" != "NEEDS CLARIFICATION" ]]; then
         new_change_entry="- $CURRENT_BRANCH: Added $NEW_DB"
     fi
     
-    # Check if sections exist in the file
+    # 檢查是否已有 Active Technologies / Recent Changes 區塊
     local has_active_technologies=0
     local has_recent_changes=0
     
@@ -416,7 +419,7 @@ update_existing_agent_file() {
         has_recent_changes=1
     fi
     
-    # Process file line by line
+    # 逐行處理，判斷區塊邏輯
     local in_tech_section=false
     local in_changes_section=false
     local tech_entries_added=false
@@ -480,13 +483,13 @@ update_existing_agent_file() {
         fi
     done < "$target_file"
     
-    # Post-loop check: if we're still in the Active Technologies section and haven't added new entries
+    # 若檔案結尾仍在 Active Technologies 區段，則補上新項
     if [[ $in_tech_section == true ]] && [[ $tech_entries_added == false ]] && [[ ${#new_tech_entries[@]} -gt 0 ]]; then
         printf '%s\n' "${new_tech_entries[@]}" >> "$temp_file"
         tech_entries_added=true
     fi
     
-    # If sections don't exist, add them at the end of the file
+    # 若區段不存在，則在尾端補上區塊
     if [[ $has_active_technologies -eq 0 ]] && [[ ${#new_tech_entries[@]} -gt 0 ]]; then
         echo "" >> "$temp_file"
         echo "## Active Technologies" >> "$temp_file"
@@ -501,7 +504,7 @@ update_existing_agent_file() {
         changes_entries_added=true
     fi
     
-    # Ensure Cursor .mdc files have YAML frontmatter for auto-inclusion
+    # 確保 Cursor .mdc 有 YAML frontmatter
     if [[ "$target_file" == *.mdc ]]; then
         if ! head -1 "$temp_file" | grep -q '^---'; then
             local frontmatter_file
@@ -512,7 +515,7 @@ update_existing_agent_file() {
         fi
     fi
 
-    # Move temp file to target atomically
+    # 原子替換目標檔案
     if ! mv "$temp_file" "$target_file"; then
         log_error "Failed to update target file"
         rm -f "$temp_file"
@@ -541,7 +544,7 @@ update_agent_file() {
     local current_date
     current_date=$(date +%Y-%m-%d)
     
-    # Create directory if it doesn't exist
+    # 若目錄不存在，先建立
     local target_dir
     target_dir=$(dirname "$target_file")
     if [[ ! -d "$target_dir" ]]; then
@@ -552,7 +555,7 @@ update_agent_file() {
     fi
     
     if [[ ! -f "$target_file" ]]; then
-        # Create new file from template
+        # 檔案不存在：用模板建立新檔
         local temp_file
         temp_file=$(mktemp) || {
             log_error "Failed to create temporary file"
@@ -573,7 +576,7 @@ update_agent_file() {
             return 1
         fi
     else
-        # Update existing file
+        # 檔案存在：在原檔上更新
         if [[ ! -r "$target_file" ]]; then
             log_error "Cannot read existing file: $target_file"
             return 1
@@ -602,6 +605,7 @@ update_agent_file() {
 update_specific_agent() {
     local agent_type="$1"
     
+    # 根據代理種類選擇對應檔案
     case "$agent_type" in
         claude)
             update_agent_file "$CLAUDE_FILE" "Claude Code"
@@ -671,7 +675,7 @@ update_specific_agent() {
 update_all_existing_agents() {
     local found_agent=false
     
-    # Check each possible agent file and update if it exists
+    # 逐一檢查各代理檔案是否存在，存在就更新
     if [[ -f "$CLAUDE_FILE" ]]; then
         update_agent_file "$CLAUDE_FILE" "Claude Code"
         found_agent=true
@@ -751,7 +755,7 @@ update_all_existing_agents() {
         found_agent=true
     fi
     
-    # If no agent files exist, create a default Claude file
+    # 若都不存在，建立預設 Claude 檔案
     if [[ "$found_agent" == false ]]; then
         log_info "No existing agent files found, creating default Claude file..."
         update_agent_file "$CLAUDE_FILE" "Claude Code"
@@ -783,35 +787,35 @@ print_summary() {
 #==============================================================================
 
 main() {
-    # Validate environment before proceeding
+    # 先做環境驗證
     validate_environment
     
     log_info "=== Updating agent context files for feature $CURRENT_BRANCH ==="
     
-    # Parse the plan file to extract project information
+    # 解析 plan.md 取得語言、框架、儲存等資訊
     if ! parse_plan_data "$NEW_PLAN"; then
         log_error "Failed to parse plan data"
         exit 1
     fi
     
-    # Process based on agent type argument
+    # 依是否指定代理來決定更新範圍
     local success=true
     
     if [[ -z "$AGENT_TYPE" ]]; then
-        # No specific agent provided - update all existing agent files
+        # 未指定：更新所有已存在的代理檔案
         log_info "No agent specified, updating all existing agent files..."
         if ! update_all_existing_agents; then
             success=false
         fi
     else
-        # Specific agent provided - update only that agent
+        # 指定代理：只更新該代理
         log_info "Updating specific agent: $AGENT_TYPE"
         if ! update_specific_agent "$AGENT_TYPE"; then
             success=false
         fi
     fi
     
-    # Print summary
+    # 輸出摘要
     print_summary
     
     if [[ "$success" == true ]]; then

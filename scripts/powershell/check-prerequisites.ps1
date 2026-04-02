@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
 
-# Consolidated prerequisite checking script (PowerShell)
+# 整合式前置條件檢查腳本（PowerShell）
 #
 # This script provides unified prerequisite checking for Spec-Driven Development workflow.
 # It replaces the functionality previously spread across multiple scripts.
@@ -25,7 +25,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# Show help if requested
+# 顯示說明並結束
 if ($Help) {
     Write-Output @"
 Usage: check-prerequisites.ps1 [OPTIONS]
@@ -53,17 +53,17 @@ EXAMPLES:
     exit 0
 }
 
-# Source common functions
+# 載入共用函式（路徑、分支檢查等）
 . "$PSScriptRoot/common.ps1"
 
-# Get feature paths and validate branch
+# 取得功能路徑並檢查分支命名
 $paths = Get-FeaturePathsEnv
 
 if (-not (Test-FeatureBranch -Branch $paths.CURRENT_BRANCH -HasGit:$paths.HAS_GIT)) { 
     exit 1 
 }
 
-# If paths-only mode, output paths and exit (support combined -Json -PathsOnly)
+# 若為 paths-only：只輸出路徑，不做驗證
 if ($PathsOnly) {
     if ($Json) {
         [PSCustomObject]@{
@@ -85,7 +85,7 @@ if ($PathsOnly) {
     exit 0
 }
 
-# Validate required directories and files
+# 驗證必要的目錄與檔案
 if (-not (Test-Path $paths.FEATURE_DIR -PathType Container)) {
     Write-Output "ERROR: Feature directory not found: $($paths.FEATURE_DIR)"
     Write-Output "Run /speckit.specify first to create the feature structure."
@@ -98,45 +98,45 @@ if (-not (Test-Path $paths.IMPL_PLAN -PathType Leaf)) {
     exit 1
 }
 
-# Check for tasks.md if required
+# 若要求 tasks.md，則強制檢查
 if ($RequireTasks -and -not (Test-Path $paths.TASKS -PathType Leaf)) {
     Write-Output "ERROR: tasks.md not found in $($paths.FEATURE_DIR)"
     Write-Output "Run /speckit.tasks first to create the task list."
     exit 1
 }
 
-# Build list of available documents
+# 蒐集可用文件清單
 $docs = @()
 
-# Always check these optional docs
+# 固定檢查的可選文件
 if (Test-Path $paths.RESEARCH) { $docs += 'research.md' }
 if (Test-Path $paths.DATA_MODEL) { $docs += 'data-model.md' }
 
-# Check contracts directory (only if it exists and has files)
+# contracts/ 需存在且至少有一個檔案
 if ((Test-Path $paths.CONTRACTS_DIR) -and (Get-ChildItem -Path $paths.CONTRACTS_DIR -ErrorAction SilentlyContinue | Select-Object -First 1)) { 
     $docs += 'contracts/' 
 }
 
 if (Test-Path $paths.QUICKSTART) { $docs += 'quickstart.md' }
 
-# Include tasks.md if requested and it exists
+# 依需求加入 tasks.md
 if ($IncludeTasks -and (Test-Path $paths.TASKS)) { 
     $docs += 'tasks.md' 
 }
 
-# Output results
+# 依 JSON / 文字模式輸出結果
 if ($Json) {
-    # JSON output
+    # JSON 輸出
     [PSCustomObject]@{ 
         FEATURE_DIR = $paths.FEATURE_DIR
         AVAILABLE_DOCS = $docs 
     } | ConvertTo-Json -Compress
 } else {
-    # Text output
+    # 文字輸出並列出各文件狀態
     Write-Output "FEATURE_DIR:$($paths.FEATURE_DIR)"
     Write-Output "AVAILABLE_DOCS:"
     
-    # Show status of each potential document
+    # 顯示每個潛在文件的狀態
     Test-FileExists -Path $paths.RESEARCH -Description 'research.md' | Out-Null
     Test-FileExists -Path $paths.DATA_MODEL -Description 'data-model.md' | Out-Null
     Test-DirHasFiles -Path $paths.CONTRACTS_DIR -Description 'contracts/' | Out-Null

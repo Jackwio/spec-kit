@@ -2,7 +2,7 @@
 
 set -e
 
-# Parse command line arguments
+# 解析命令列參數：是否輸出 JSON、是否顯示說明
 JSON_MODE=false
 ARGS=()
 
@@ -23,31 +23,31 @@ for arg in "$@"; do
     esac
 done
 
-# Get script directory and load common functions
+# 取得腳本位置並載入共用函式
 SCRIPT_DIR="$(CDPATH="" cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 
-# Get all paths and variables from common functions
+# 取得所有必要路徑與分支資訊
 eval $(get_feature_paths)
 
-# Check if we're on a proper feature branch (only for git repos)
+# 若為 git repo，檢查分支命名是否符合規範
 check_feature_branch "$CURRENT_BRANCH" "$HAS_GIT" || exit 1
 
-# Ensure the feature directory exists
+# 確保功能目錄存在
 mkdir -p "$FEATURE_DIR"
 
-# Copy plan template if it exists
+# 若有 plan 模板則複製，否則建立空檔
 TEMPLATE="$REPO_ROOT/.specify/templates/plan-template.md"
 if [[ -f "$TEMPLATE" ]]; then
     cp "$TEMPLATE" "$IMPL_PLAN"
     echo "Copied plan template to $IMPL_PLAN"
 else
     echo "Warning: Plan template not found at $TEMPLATE"
-    # Create a basic plan file if template doesn't exist
+    # 無模板時建立空白 plan.md
     touch "$IMPL_PLAN"
 fi
 
-# Output results
+# 依 JSON / 文字模式輸出結果
 if $JSON_MODE; then
     printf '{"FEATURE_SPEC":"%s","IMPL_PLAN":"%s","SPECS_DIR":"%s","BRANCH":"%s","HAS_GIT":"%s"}\n' \
         "$FEATURE_SPEC" "$IMPL_PLAN" "$FEATURE_DIR" "$CURRENT_BRANCH" "$HAS_GIT"
@@ -58,4 +58,3 @@ else
     echo "BRANCH: $CURRENT_BRANCH"
     echo "HAS_GIT: $HAS_GIT"
 fi
-

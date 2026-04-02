@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Create a new feature
+# 建立新功能（建立分支與 spec 結構）
 [CmdletBinding()]
 param(
     [switch]$Json,
@@ -11,7 +11,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 
-# Show help if requested
+# 顯示說明並結束
 if ($Help) {
     Write-Host "Usage: ./create-new-feature.ps1 [-Json] [-ShortName <name>] [-Number N] <feature description>"
     Write-Host ""
@@ -27,7 +27,7 @@ if ($Help) {
     exit 0
 }
 
-# Check if feature description provided
+# 檢查是否有提供功能描述
 if (-not $FeatureDescription -or $FeatureDescription.Count -eq 0) {
     Write-Error "Usage: ./create-new-feature.ps1 [-Json] [-ShortName <name>] <feature description>"
     exit 1
@@ -35,15 +35,13 @@ if (-not $FeatureDescription -or $FeatureDescription.Count -eq 0) {
 
 $featureDesc = ($FeatureDescription -join ' ').Trim()
 
-# Validate description is not empty after trimming (e.g., user passed only whitespace)
+# 去除空白後不可為空
 if ([string]::IsNullOrWhiteSpace($featureDesc)) {
     Write-Error "Error: Feature description cannot be empty or contain only whitespace"
     exit 1
 }
 
-# Resolve repository root. Prefer git information when available, but fall back
-# to searching for repository markers so the workflow still functions in repositories that
-# were initialized with --no-git.
+# 解析 repo 根目錄：有 git 用 git，無 git 走標記回溯
 function Find-RepositoryRoot {
     param(
         [string]$StartDir,
@@ -66,6 +64,7 @@ function Find-RepositoryRoot {
 }
 
 function Get-HighestNumberFromSpecs {
+    # 從 specs/ 中找最大數字前綴
     param([string]$SpecsDir)
     
     $highest = 0
@@ -81,6 +80,7 @@ function Get-HighestNumberFromSpecs {
 }
 
 function Get-HighestNumberFromBranches {
+    # 從 git 分支（含遠端）找最大數字前綴
     param()
     
     $highest = 0
@@ -110,27 +110,28 @@ function Get-NextBranchNumber {
         [string]$SpecsDir
     )
 
-    # Fetch all remotes to get latest branch info (suppress errors if no remotes)
+    # 抓取遠端分支資訊（無 remote 也不報錯）
     try {
         git fetch --all --prune 2>$null | Out-Null
     } catch {
         # Ignore fetch errors
     }
 
-    # Get highest number from ALL branches (not just matching short name)
+    # 取所有分支最大前綴
     $highestBranch = Get-HighestNumberFromBranches
 
-    # Get highest number from ALL specs (not just matching short name)
+    # 取 specs/ 最大前綴
     $highestSpec = Get-HighestNumberFromSpecs -SpecsDir $SpecsDir
 
-    # Take the maximum of both
+    # 取兩者最大值
     $maxNum = [Math]::Max($highestBranch, $highestSpec)
 
-    # Return next number
+    # 回傳下一個編號
     return $maxNum + 1
 }
 
 function ConvertTo-CleanBranchName {
+    # 清理字串為可用分支片段（小寫 + 連字號）
     param([string]$Name)
     
     return $Name.ToLower() -replace '[^a-z0-9]', '-' -replace '-{2,}', '-' -replace '^-', '' -replace '-$', ''
@@ -158,11 +159,11 @@ Set-Location $repoRoot
 $specsDir = Join-Path $repoRoot 'specs'
 New-Item -ItemType Directory -Path $specsDir -Force | Out-Null
 
-# Function to generate branch name with stop word filtering and length filtering
+# 由描述產生分支名稱（停用字過濾 + 長度控制）
 function Get-BranchName {
     param([string]$Description)
     
-    # Common stop words to filter out
+    # 常見停用字
     $stopWords = @(
         'i', 'a', 'an', 'the', 'to', 'for', 'of', 'in', 'on', 'at', 'by', 'with', 'from',
         'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had',
@@ -171,11 +172,11 @@ function Get-BranchName {
         'want', 'need', 'add', 'get', 'set'
     )
     
-    # Convert to lowercase and extract words (alphanumeric only)
+    # 轉小寫、移除非字母數字並切分單字
     $cleanName = $Description.ToLower() -replace '[^a-z0-9\s]', ' '
     $words = $cleanName -split '\s+' | Where-Object { $_ }
     
-    # Filter words: remove stop words and words shorter than 3 chars (unless they're uppercase acronyms in original)
+    # 過濾停用字與太短的字（除非原文為縮寫）
     $meaningfulWords = @()
     foreach ($word in $words) {
         # Skip stop words
@@ -190,35 +191,35 @@ function Get-BranchName {
         }
     }
     
-    # If we have meaningful words, use first 3-4 of them
+    # 有關鍵字就取前 3-4 個
     if ($meaningfulWords.Count -gt 0) {
         $maxWords = if ($meaningfulWords.Count -eq 4) { 4 } else { 3 }
         $result = ($meaningfulWords | Select-Object -First $maxWords) -join '-'
         return $result
     } else {
-        # Fallback to original logic if no meaningful words found
+        # 沒有關鍵字時退回簡單清理
         $result = ConvertTo-CleanBranchName -Name $Description
         $fallbackWords = ($result -split '-') | Where-Object { $_ } | Select-Object -First 3
         return [string]::Join('-', $fallbackWords)
     }
 }
 
-# Generate branch name
+# 產生分支後綴
 if ($ShortName) {
-    # Use provided short name, just clean it up
+    # 使用者指定短名稱，直接清理
     $branchSuffix = ConvertTo-CleanBranchName -Name $ShortName
 } else {
-    # Generate from description with smart filtering
+    # 由描述自動生成
     $branchSuffix = Get-BranchName -Description $featureDesc
 }
 
-# Determine branch number
+# 決定分支編號
 if ($Number -eq 0) {
     if ($hasGit) {
-        # Check existing branches on remotes
+        # 有 git：綜合分支與 specs/ 推算下一號
         $Number = Get-NextBranchNumber -SpecsDir $specsDir
     } else {
-        # Fall back to local directory check
+        # 無 git：只看 specs/ 目錄
         $Number = (Get-HighestNumberFromSpecs -SpecsDir $specsDir) + 1
     }
 }
@@ -226,8 +227,7 @@ if ($Number -eq 0) {
 $featureNum = ('{0:000}' -f $Number)
 $branchName = "$featureNum-$branchSuffix"
 
-# GitHub enforces a 244-byte limit on branch names
-# Validate and truncate if necessary
+# GitHub 分支名稱限制 244 bytes：超長時裁切後綴
 $maxBranchLength = 244
 if ($branchName.Length -gt $maxBranchLength) {
     # Calculate how much we need to trim from suffix
@@ -259,7 +259,7 @@ if ($hasGit) {
     }
 
     if (-not $branchCreated) {
-        # Check if branch already exists
+        # 已存在或建立失敗時給明確錯誤
         $existingBranch = git branch --list $branchName 2>$null
         if ($existingBranch) {
             Write-Error "Error: Branch '$branchName' already exists. Please use a different feature name or specify a different number with -Number."
@@ -285,6 +285,7 @@ if (Test-Path $template) {
 }
 
 # Set the SPECIFY_FEATURE environment variable for the current session
+# 設定當前 shell 會話的 SPECIFY_FEATURE
 $env:SPECIFY_FEATURE = $branchName
 
 if ($Json) {
@@ -302,4 +303,3 @@ if ($Json) {
     Write-Output "HAS_GIT: $hasGit"
     Write-Output "SPECIFY_FEATURE environment variable set to: $branchName"
 }
-

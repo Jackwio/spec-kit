@@ -31,11 +31,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# Import common helpers
+# 載入共用函式
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $ScriptDir 'common.ps1')
 
-# Acquire environment paths
+# 取得專案路徑與分支資訊
 $envData = Get-FeaturePathsEnv
 $REPO_ROOT     = $envData.REPO_ROOT
 $CURRENT_BRANCH = $envData.CURRENT_BRANCH
@@ -43,7 +43,7 @@ $HAS_GIT       = $envData.HAS_GIT
 $IMPL_PLAN     = $envData.IMPL_PLAN
 $NEW_PLAN = $IMPL_PLAN
 
-# Agent file paths
+# 各代理的上下文檔案路徑
 $CLAUDE_FILE   = Join-Path $REPO_ROOT 'CLAUDE.md'
 $GEMINI_FILE   = Join-Path $REPO_ROOT 'GEMINI.md'
 $COPILOT_FILE  = Join-Path $REPO_ROOT '.github/agents/copilot-instructions.md'
@@ -64,7 +64,7 @@ $BOB_FILE      = Join-Path $REPO_ROOT 'AGENTS.md'
 
 $TEMPLATE_FILE = Join-Path $REPO_ROOT '.specify/templates/agent-file-template.md'
 
-# Parsed plan data placeholders
+# 解析 plan.md 的結果欄位
 $script:NEW_LANG = ''
 $script:NEW_FRAMEWORK = ''
 $script:NEW_DB = ''
@@ -103,6 +103,7 @@ function Write-Err {
 }
 
 function Validate-Environment {
+    # 環境檢查：必須有分支名稱與 plan.md
     if (-not $CURRENT_BRANCH) {
         Write-Err 'Unable to determine current feature'
         if ($HAS_GIT) { Write-Info "Make sure you're on a feature branch" } else { Write-Info 'Set SPECIFY_FEATURE environment variable or create a feature first' }
@@ -129,7 +130,7 @@ function Extract-PlanField {
         [string]$PlanFile
     )
     if (-not (Test-Path $PlanFile)) { return '' }
-    # Lines like **Language/Version**: Python 3.12
+    # 解析形如 **Language/Version**: Python 3.12 的欄位
     $regex = "^\*\*$([Regex]::Escape($FieldPattern))\*\*: (.+)$"
     Get-Content -LiteralPath $PlanFile -Encoding utf8 | ForEach-Object {
         if ($_ -match $regex) { 
@@ -165,6 +166,7 @@ function Format-TechnologyStack {
         [Parameter(Mandatory=$false)]
         [string]$Framework
     )
+    # 將語言與框架合併為「A + B」格式
     $parts = @()
     if ($Lang -and $Lang -ne 'NEEDS CLARIFICATION') { $parts += $Lang }
     if ($Framework -and $Framework -notin @('NEEDS CLARIFICATION','N/A')) { $parts += $Framework }
@@ -177,6 +179,7 @@ function Get-ProjectStructure {
         [Parameter(Mandatory=$false)]
         [string]$ProjectType
     )
+    # 依專案型態給預設結構
     if ($ProjectType -match 'web') { return "backend/`nfrontend/`ntests/" } else { return "src/`ntests/" } 
 }
 
@@ -185,6 +188,7 @@ function Get-CommandsForLanguage {
         [Parameter(Mandatory=$false)]
         [string]$Lang
     )
+    # 依語言回傳建議測試/靜態檢查指令
     switch -Regex ($Lang) {
         'Python' { return "cd src; pytest; ruff check ." }
         'Rust' { return "cargo test; cargo clippy" }
@@ -198,6 +202,7 @@ function Get-LanguageConventions {
         [Parameter(Mandatory=$false)]
         [string]$Lang
     )
+    # 語言慣例說明（目前為通用模板）
     if ($Lang) { "${Lang}: Follow standard conventions" } else { 'General: Follow standard conventions' } 
 }
 
@@ -211,6 +216,7 @@ function New-AgentFile {
         [datetime]$Date
     )
     if (-not (Test-Path $TEMPLATE_FILE)) { Write-Err "Template not found at $TEMPLATE_FILE"; return $false }
+    # 使用暫存檔建立新內容，避免中途失敗破壞原檔
     $temp = New-TemporaryFile
     Copy-Item -LiteralPath $TEMPLATE_FILE -Destination $temp -Force
 
@@ -226,7 +232,7 @@ function New-AgentFile {
     $content = $content -replace '\[PROJECT NAME\]',$ProjectName
     $content = $content -replace '\[DATE\]',$Date.ToString('yyyy-MM-dd')
     
-    # Build the technology stack string safely
+    # 組合技術棧內容（依欄位有無）
     $techStackForTemplate = ""
     if ($escaped_lang -and $escaped_framework) {
         $techStackForTemplate = "- $escaped_lang + $escaped_framework ($escaped_branch)"
@@ -237,14 +243,14 @@ function New-AgentFile {
     }
     
     $content = $content -replace '\[EXTRACTED FROM ALL PLAN.MD FILES\]',$techStackForTemplate
-    # For project structure we manually embed (keep newlines)
+    # 專案結構需保留換行
     $escapedStructure = [Regex]::Escape($projectStructure)
     $content = $content -replace '\[ACTUAL STRUCTURE FROM PLANS\]',$escapedStructure
     # Replace escaped newlines placeholder after all replacements
     $content = $content -replace '\[ONLY COMMANDS FOR ACTIVE TECHNOLOGIES\]',$commands
     $content = $content -replace '\[LANGUAGE-SPECIFIC, ONLY FOR LANGUAGES IN USE\]',$languageConventions
     
-    # Build the recent changes string safely
+    # 組合 Recent Changes 內容
     $recentChangesForTemplate = ""
     if ($escaped_lang -and $escaped_framework) {
         $recentChangesForTemplate = "- ${escaped_branch}: Added ${escaped_lang} + ${escaped_framework}"
@@ -255,10 +261,10 @@ function New-AgentFile {
     }
     
     $content = $content -replace '\[LAST 3 FEATURES AND WHAT THEY ADDED\]',$recentChangesForTemplate
-    # Convert literal \n sequences introduced by Escape to real newlines
+    # 將字串中的 \n 轉成真正換行
     $content = $content -replace '\\n',[Environment]::NewLine
 
-    # Prepend Cursor frontmatter for .mdc files so rules are auto-included
+    # Cursor .mdc 需加 frontmatter 才會自動載入
     if ($TargetFile -match '\.mdc$') {
         $frontmatter = @('---','description: Project Development Guidelines','globs: ["**/*"]','alwaysApply: true','---','') -join [Environment]::NewLine
         $content = $frontmatter + $content
@@ -280,6 +286,7 @@ function Update-ExistingAgentFile {
     )
     if (-not (Test-Path $TargetFile)) { return (New-AgentFile -TargetFile $TargetFile -ProjectName (Split-Path $REPO_ROOT -Leaf) -Date $Date) }
 
+    # 產生技術棧與新條目（避免重複）
     $techStack = Format-TechnologyStack -Lang $NEW_LANG -Framework $NEW_FRAMEWORK
     $newTechEntries = @()
     if ($techStack) {
@@ -298,6 +305,7 @@ function Update-ExistingAgentFile {
     if ($techStack) { $newChangeEntry = "- ${CURRENT_BRANCH}: Added ${techStack}" }
     elseif ($NEW_DB -and $NEW_DB -notin @('N/A','NEEDS CLARIFICATION')) { $newChangeEntry = "- ${CURRENT_BRANCH}: Added ${NEW_DB}" }
 
+    # 逐行處理，依區塊插入/更新
     $lines = Get-Content -LiteralPath $TargetFile -Encoding utf8
     $output = New-Object System.Collections.Generic.List[string]
     $inTech = $false; $inChanges = $false; $techAdded = $false; $changeAdded = $false; $existingChanges = 0
@@ -335,12 +343,12 @@ function Update-ExistingAgentFile {
         $output.Add($line)
     }
 
-    # Post-loop check: if we're still in the Active Technologies section and haven't added new entries
+    # 若到檔尾仍在 Active Technologies 區塊，補上新條目
     if ($inTech -and -not $techAdded -and $newTechEntries.Count -gt 0) {
         $newTechEntries | ForEach-Object { $output.Add($_) }
     }
 
-    # Ensure Cursor .mdc files have YAML frontmatter for auto-inclusion
+    # 確保 Cursor .mdc 有 YAML frontmatter
     if ($TargetFile -match '\.mdc$' -and $output.Count -gt 0 -and $output[0] -ne '---') {
         $frontmatter = @('---','description: Project Development Guidelines','globs: ["**/*"]','alwaysApply: true','---','')
         $output.InsertRange(0, $frontmatter)
@@ -365,6 +373,7 @@ function Update-AgentFile {
     $dir = Split-Path -Parent $TargetFile
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
 
+    # 不存在則建立，存在則更新
     if (-not (Test-Path $TargetFile)) {
         if (New-AgentFile -TargetFile $TargetFile -ProjectName $projectName -Date $date) { Write-Success "Created new $AgentName context file" } else { Write-Err 'Failed to create new agent file'; return $false }
     } else {
@@ -383,6 +392,7 @@ function Update-SpecificAgent {
         [Parameter(Mandatory=$true)]
         [string]$Type
     )
+    # 依代理種類選擇對應檔案
     switch ($Type) {
         'claude'   { Update-AgentFile -TargetFile $CLAUDE_FILE   -AgentName 'Claude Code' }
         'gemini'   { Update-AgentFile -TargetFile $GEMINI_FILE   -AgentName 'Gemini CLI' }
@@ -408,6 +418,7 @@ function Update-SpecificAgent {
 }
 
 function Update-AllExistingAgents {
+    # 依序更新所有已存在的代理檔案
     $found = $false
     $ok = $true
     if (Test-Path $CLAUDE_FILE)   { if (-not (Update-AgentFile -TargetFile $CLAUDE_FILE   -AgentName 'Claude Code')) { $ok = $false }; $found = $true }
@@ -427,6 +438,7 @@ function Update-AllExistingAgents {
     if (Test-Path $AGY_FILE)      { if (-not (Update-AgentFile -TargetFile $AGY_FILE      -AgentName 'Antigravity')) { $ok = $false }; $found = $true }
     if (Test-Path $BOB_FILE)      { if (-not (Update-AgentFile -TargetFile $BOB_FILE      -AgentName 'IBM Bob')) { $ok = $false }; $found = $true }
     if (-not $found) {
+        # 若都不存在，建立預設 Claude 檔案
         Write-Info 'No existing agent files found, creating default Claude file...'
         if (-not (Update-AgentFile -TargetFile $CLAUDE_FILE -AgentName 'Claude Code')) { $ok = $false }
     }
@@ -434,6 +446,7 @@ function Update-AllExistingAgents {
 }
 
 function Print-Summary {
+    # 列印本次更新摘要
     Write-Host ''
     Write-Info 'Summary of changes:'
     if ($NEW_LANG) { Write-Host "  - Added language: $NEW_LANG" }
@@ -444,6 +457,7 @@ function Print-Summary {
 }
 
 function Main {
+    # 主流程：驗證 -> 解析 -> 更新 -> 摘要
     Validate-Environment
     Write-Info "=== Updating agent context files for feature $CURRENT_BRANCH ==="
     if (-not (Parse-PlanData -PlanFile $NEW_PLAN)) { Write-Err 'Failed to parse plan data'; exit 1 }

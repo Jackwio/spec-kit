@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Consolidated prerequisite checking script
+# 整合式前置條件檢查腳本
 #
 # This script provides unified prerequisite checking for Spec-Driven Development workflow.
 # It replaces the functionality previously spread across multiple scripts.
@@ -21,7 +21,7 @@
 
 set -e
 
-# Parse command line arguments
+# 解析命令列參數：控制輸出格式與是否檢查 tasks.md
 JSON_MODE=false
 REQUIRE_TASKS=false
 INCLUDE_TASKS=false
@@ -74,18 +74,18 @@ EOF
     esac
 done
 
-# Source common functions
+# 載入共用函式（取得路徑、分支檢查等）
 SCRIPT_DIR="$(CDPATH="" cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 
-# Get feature paths and validate branch
+# 取得功能路徑並檢查分支命名
 eval $(get_feature_paths)
 check_feature_branch "$CURRENT_BRANCH" "$HAS_GIT" || exit 1
 
-# If paths-only mode, output paths and exit (support JSON + paths-only combined)
+# 若為 paths-only：僅輸出路徑資訊，不做任何驗證
 if $PATHS_ONLY; then
     if $JSON_MODE; then
-        # Minimal JSON paths payload (no validation performed)
+        # 最小化 JSON 輸出（不驗證）
         printf '{"REPO_ROOT":"%s","BRANCH":"%s","FEATURE_DIR":"%s","FEATURE_SPEC":"%s","IMPL_PLAN":"%s","TASKS":"%s"}\n' \
             "$REPO_ROOT" "$CURRENT_BRANCH" "$FEATURE_DIR" "$FEATURE_SPEC" "$IMPL_PLAN" "$TASKS"
     else
@@ -99,7 +99,7 @@ if $PATHS_ONLY; then
     exit 0
 fi
 
-# Validate required directories and files
+# 驗證必要的目錄與檔案是否存在
 if [[ ! -d "$FEATURE_DIR" ]]; then
     echo "ERROR: Feature directory not found: $FEATURE_DIR" >&2
     echo "Run /speckit.specify first to create the feature structure." >&2
@@ -112,35 +112,35 @@ if [[ ! -f "$IMPL_PLAN" ]]; then
     exit 1
 fi
 
-# Check for tasks.md if required
+# 若要求 tasks.md，則強制檢查
 if $REQUIRE_TASKS && [[ ! -f "$TASKS" ]]; then
     echo "ERROR: tasks.md not found in $FEATURE_DIR" >&2
     echo "Run /speckit.tasks first to create the task list." >&2
     exit 1
 fi
 
-# Build list of available documents
+# 蒐集可用文件清單（用於輸出 AVAILABLE_DOCS）
 docs=()
 
-# Always check these optional docs
+# 固定檢查的可選文件
 [[ -f "$RESEARCH" ]] && docs+=("research.md")
 [[ -f "$DATA_MODEL" ]] && docs+=("data-model.md")
 
-# Check contracts directory (only if it exists and has files)
+# contracts/ 需存在且至少有一個檔案
 if [[ -d "$CONTRACTS_DIR" ]] && [[ -n "$(ls -A "$CONTRACTS_DIR" 2>/dev/null)" ]]; then
     docs+=("contracts/")
 fi
 
 [[ -f "$QUICKSTART" ]] && docs+=("quickstart.md")
 
-# Include tasks.md if requested and it exists
+# 依需求加入 tasks.md
 if $INCLUDE_TASKS && [[ -f "$TASKS" ]]; then
     docs+=("tasks.md")
 fi
 
-# Output results
+# 依 JSON / 文字模式輸出結果
 if $JSON_MODE; then
-    # Build JSON array of documents
+    # 組成 JSON 陣列
     if [[ ${#docs[@]} -eq 0 ]]; then
         json_docs="[]"
     else
@@ -150,11 +150,11 @@ if $JSON_MODE; then
     
     printf '{"FEATURE_DIR":"%s","AVAILABLE_DOCS":%s}\n' "$FEATURE_DIR" "$json_docs"
 else
-    # Text output
+    # 文字輸出並標示每個檔案的存在狀態
     echo "FEATURE_DIR:$FEATURE_DIR"
     echo "AVAILABLE_DOCS:"
     
-    # Show status of each potential document
+    # 顯示每個潛在文件的狀態
     check_file "$RESEARCH" "research.md"
     check_file "$DATA_MODEL" "data-model.md"
     check_dir "$CONTRACTS_DIR" "contracts/"

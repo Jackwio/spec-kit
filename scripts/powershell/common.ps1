@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Common PowerShell functions analogous to common.sh
+# PowerShell 共用函式（對應 bash/common.sh）
 
 function Get-RepoRoot {
     try {
@@ -8,30 +8,30 @@ function Get-RepoRoot {
             return $result
         }
     } catch {
-        # Git command failed
+        # Git 指令失敗，改走 fallback
     }
     
-    # Fall back to script location for non-git repos
+    # 非 git repo：用腳本位置往上回推
     return (Resolve-Path (Join-Path $PSScriptRoot "../../..")).Path
 }
 
 function Get-CurrentBranch {
-    # First check if SPECIFY_FEATURE environment variable is set
+    # 1) 優先使用 SPECIFY_FEATURE（支援無 git 或手動指定）
     if ($env:SPECIFY_FEATURE) {
         return $env:SPECIFY_FEATURE
     }
     
-    # Then check git if available
+    # 2) 有 git 時取目前分支
     try {
         $result = git rev-parse --abbrev-ref HEAD 2>$null
         if ($LASTEXITCODE -eq 0) {
             return $result
         }
     } catch {
-        # Git command failed
+        # Git 指令失敗，繼續 fallback
     }
     
-    # For non-git repos, try to find the latest feature directory
+    # 3) 無 git：從 specs/ 找最新數字前綴目錄
     $repoRoot = Get-RepoRoot
     $specsDir = Join-Path $repoRoot "specs"
     
@@ -54,7 +54,7 @@ function Get-CurrentBranch {
         }
     }
     
-    # Final fallback
+    # 4) 最終兜底
     return "main"
 }
 
@@ -73,7 +73,7 @@ function Test-FeatureBranch {
         [bool]$HasGit = $true
     )
     
-    # For non-git repos, we can't enforce branch naming but still provide output
+    # 非 git repo：不強制分支命名規則
     if (-not $HasGit) {
         Write-Warning "[specify] Warning: Git repository not detected; skipped branch validation"
         return $true
@@ -93,6 +93,7 @@ function Get-FeatureDir {
 }
 
 function Get-FeaturePathsEnv {
+    # 將常用路徑集中回傳，供其他腳本使用
     $repoRoot = Get-RepoRoot
     $currentBranch = Get-CurrentBranch
     $hasGit = Test-HasGit
@@ -115,6 +116,7 @@ function Get-FeaturePathsEnv {
 
 function Test-FileExists {
     param([string]$Path, [string]$Description)
+    # 回傳並輸出檔案是否存在
     if (Test-Path -Path $Path -PathType Leaf) {
         Write-Output "  ✓ $Description"
         return $true
@@ -126,6 +128,7 @@ function Test-FileExists {
 
 function Test-DirHasFiles {
     param([string]$Path, [string]$Description)
+    # 目錄存在且至少有一個檔案
     if ((Test-Path -Path $Path -PathType Container) -and (Get-ChildItem -Path $Path -ErrorAction SilentlyContinue | Where-Object { -not $_.PSIsContainer } | Select-Object -First 1)) {
         Write-Output "  ✓ $Description"
         return $true
@@ -134,4 +137,3 @@ function Test-DirHasFiles {
         return $false
     }
 }
-
