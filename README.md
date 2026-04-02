@@ -198,7 +198,7 @@ uvx --from git+https://github.com/github/spec-kit.git specify init <PROJECT_NAME
 | `--skip-tls`           | 旗幟     | 跳過 SSL/TLS 驗證（不建議）                                                                                                                                                  |
 | `--debug`              | 旗幟     | 啟用詳細的調試輸出以進行故障排除                                                                                                                                             |
 | `--github-token`       | 選項   | GitHub 令牌用於 API 請求（或設定 GH_TOKEN/GITHUB_TOKEN 環境變數）                                                                                                                    |
-| `--ai-skills`          | 旗幟     | 在特定於代理的 `skills/` 目錄中安裝 Prompt.MD 範本作為代理技能（需要 `--ai`）                                                                                          |
+| `--ai-skills`          | 旗幟     | 在特定代理的 `skills/` 目錄中安裝 Prompt.MD 範本作為代理技能（需要 `--ai`）                                                                                          |
 
 ### 範例
 
